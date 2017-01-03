@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>images/document-open.png</file>
+        <file>AccountsPage.qml</file>
+        <file>TransactionsPage.qml</file>
+        <file>images/exit.png</file>
+        <file>AccountsDelegate.qml</file>
+        <file>AccountCreationArea.qml</file>
+        <file>TransactionCreationArea.qml</file>
+        <file>home.qml</file>
+        <file>images/arrow.png</file>
+        <file>AccountCreationDialog.qml</file>
+        <file>AccountsListView.qml</file>
+        <file>AccountsBarSeries.qml</file>
+        <file>AccountsAreaSeries.qml</file>
+        <file>RecentFilesDelegate.qml</file>
+        <file>images/logo.png</file>
+        <file>RevenusDepensesGraph.qml</file>
+        <file>AccountsCategories.qml</file>
+        <file>TransactionsTableView.qml</file>
+        <file>TransactionsListView.qml</file>
+        <file>TransactionsDelegate.qml</file>
+        <file>MyComboBox.qml</file>
+    </qresource>
+</RCC>
