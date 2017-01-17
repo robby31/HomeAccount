@@ -11,6 +11,8 @@ MyApplication {
     height: 600
     logoCompany: "qrc:///images/logo.png"
 
+    property var pageLoaded
+
     signal loadDatabase(string filename)
     signal closeDatabase()
     signal importQif(int idAccount, string filename)
@@ -21,18 +23,25 @@ MyApplication {
     srcPages: "home.qml"
 
     function databaseLoaded() {
-        mainWindow.setPage(Qt.resolvedUrl("AccountsPage.qml"), {"model": accountsController.accountsModel})
+        mainWindow.setPage(Qt.resolvedUrl("AccountsPage.qml"), {})
     }
 
     function databaseClosed() {
         srcPages = "home.qml"
     }
 
+    function reloadDatabase() {
+        if (pageLoaded.reloadDatabase)
+            pageLoaded.reloadDatabase()
+    }
+
     function closeTransactions() {
-        mainWindow.setPage(Qt.resolvedUrl("AccountsPage.qml"), {"model": accountsController.accountsModel})
+        mainWindow.setPage(Qt.resolvedUrl("AccountsPage.qml"), {})
     }
 
     function selectAccountforTransactions(id, name) {
-        mainWindow.setPage(Qt.resolvedUrl("TransactionsPage.qml"), {"accountId": id, "accountName": name, "transactionsModel": accountsController.transactionsModel})
+        mainWindow.setPage(Qt.resolvedUrl("TransactionsPage.qml"), {"accountId": id, "accountName": name})
     }
+
+    onItemLoaded: pageLoaded = item
 }

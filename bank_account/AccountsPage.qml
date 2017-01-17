@@ -13,8 +13,6 @@ Page {
 
     actions: accountsPageActions
 
-    property alias model: accountsListView.model
-
     onActionClicked: {
         if (name == "Close")
             closeDatabase()
@@ -28,6 +26,16 @@ Page {
             description: "close accounts"
             icon: "qrc:///images/exit.png"
         }
+    }
+
+    function reloadDatabase() {
+        accountsModel.reload()
+    }
+
+    SqlListModel {
+        id: accountsModel
+        connectionName: "ACCOUNTS"
+        query: "SELECT id, name, number, (SELECT SUM(transactions.amount) FROM transactions WHERE transactions.account_id=accounts.id and split_id=0) AS amount FROM accounts"
     }
 
     ListView {
@@ -46,6 +54,7 @@ Page {
                 id: accountsListView
                 width: listView.width
                 height: listView.height
+                model: accountsModel
             }
 
             AccountsCategories {
@@ -58,7 +67,7 @@ Page {
                 id: barSeries
                 width: listView.width
                 height: listView.height
-                model: accountsPage.model
+                model: accountsModel
             }
 
             AccountsAreaSeries {

@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import QtCharts 2.0
-import Models 1.0
+import MyComponents 1.0
 
 ChartView {
     id: chartView

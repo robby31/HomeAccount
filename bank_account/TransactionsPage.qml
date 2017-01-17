@@ -3,7 +3,6 @@ import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import MyComponents 1.0
-import Models 1.0
 
 Page {
     id: transactionsPage
@@ -13,7 +12,6 @@ Page {
 
     property int accountId: -1
     property string accountName: ""
-    property alias transactionsModel: transactions.model
     property string unit: "€"
 
     actions: transactionsPageActions
@@ -32,6 +30,15 @@ Page {
             description: "close transactions"
             icon: "qrc:///images/exit.png"
         }
+    }
+
+    function reloadDatabase() {
+        transactionsModel.reload()
+    }
+
+    SqlListModel {
+        id: transactionsModel
+        connectionName: "ACCOUNTS"
     }
 
     onActionClicked: {
@@ -155,6 +162,7 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            model: transactionsModel
             unit: transactionsPage.unit
 
             onModelChanged: updateTransactionsQuery()

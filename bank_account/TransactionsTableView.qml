@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.2
 import MyComponents 1.0
-import Models 1.0
 
 TableView{
     id: tableview

@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.1
 import QtCharts 2.0
 import MyComponents 1.0
-import Models 1.0
 
 ColumnLayout {
     SqlListModel {
@@ -14,21 +13,46 @@ ColumnLayout {
     }
 
     SqlListModel {
-        id: sqlModel
-        connectionName: "ACCOUNTS"
-        query: "SELECT maincategory, total, abs(total) AS balance FROM (SELECT CASE WHEN instr(category, ':')!=0 THEN substr(category, 1, instr(category, ':')-1) ELSE category END AS maincategory, sum(amount) AS total from transactions WHERE split_id=0 and strftime('%Y', date)='%1' GROUP BY maincategory) ORDER BY balance DESC".arg(comboYear.currentText)
-        onQueryChanged: mySeries.updateAxis(sqlModel, mapper.firstRow, mapper.rowCount)
+        id: sqlAccountsModel
 
-        Component.onCompleted: {
-            addColumnToFilter("maincategory")
+        connectionName: "ACCOUNTS"
+        query: "SELECT DISTINCT id, name from accounts ORDER BY name"
+
+        onQueryChanged: updateAccountsModel()
+        Component.onCompleted: updateAccountsModel()
+    }
+
+    function updateAccountsModel() {
+        accountsModel.clear()
+        accountsModel.append({"account_id": -1, "name": "All"})
+        for (var i=0;i<sqlAccountsModel.rowCount;++i) {
+            accountsModel.append({"account_id": sqlAccountsModel.get(i, "id"), "name": sqlAccountsModel.get(i, "name")})
+        }
+        comboAccount.currentIndex = 0
+    }
+
+    ListModel {
+        id: accountsModel
+        ListElement { account_id: -1; name: "All"}
+
+    }
+
+    function updateSqlModelQuery() {
+        if (comboAccount.currentIndex <= 0) {
+            chartView.title = "Categories (Année %1)".arg(comboYear.currentText)
+            mapper.query = "SELECT maincategory, total, abs(total) AS balance FROM (SELECT CASE WHEN instr(category, ':')!=0 THEN substr(category, 1, instr(category, ':')-1) ELSE category END AS maincategory, sum(amount) AS total from transactions WHERE split_id=0 and strftime('%Y', date)='%1' GROUP BY maincategory) ORDER BY balance DESC".arg(comboYear.currentText)
+        } else {
+            var account_id = accountsModel.get(comboAccount.currentIndex).account_id
+            chartView.title = "Categories %2 (Année %1)".arg(comboYear.currentText).arg(comboAccount.currentText)
+            mapper.query = "SELECT maincategory, total, abs(total) AS balance FROM (SELECT CASE WHEN instr(category, ':')!=0 THEN substr(category, 1, instr(category, ':')-1) ELSE category END AS maincategory, sum(amount) AS total from transactions WHERE account_id=%2 and split_id=0 and strftime('%Y', date)='%1' GROUP BY maincategory) ORDER BY balance DESC".arg(comboYear.currentText).arg(account_id)
         }
     }
 
     Row {
         ComboBox {
             id: comboYear
-            height: 20
 
+            height: 20
             model: yearModel
             textRole: "year"
 
@@ -36,7 +60,7 @@ ColumnLayout {
                 width: comboYear.width
                 height: comboYear.height
                 contentItem: Text {
-                    text: modelData
+                    text: year
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -76,6 +100,56 @@ ColumnLayout {
                     index = model.rowCount-1
                 currentIndex = index
             }
+
+            onCurrentTextChanged: updateSqlModelQuery()
+        }
+
+        ComboBox {
+            id: comboAccount
+
+            height: 20
+            model: accountsModel
+            textRole: "name"
+
+            delegate: ItemDelegate {
+                width: comboAccount.width
+                height: comboAccount.height
+                contentItem: Text {
+                    text: name
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                highlighted: comboAccount.highlightedIndex == index
+            }
+
+            indicator: Canvas {
+                id: comboAccountCanvas
+                x: comboAccount.width - width - comboAccount.rightPadding
+                y: comboAccount.topPadding + (comboAccount.availableHeight - height) / 2
+                width: 12
+                height: 8
+                contextType: "2d"
+
+                Connections {
+                    target: comboAccount
+                    onPressedChanged: comboAccountCanvas.requestPaint()
+                }
+
+                onPaint: {
+                    context.reset();
+                    context.moveTo(0, 0);
+                    context.lineTo(width, 0);
+                    context.lineTo(width / 2, height);
+                    context.closePath();
+//                    context.fillStyle = comboYear.pressed ? "#17a81a" : "#21be2b";
+                    context.fill();
+                }
+            }
+
+            onModelChanged: currentIndex = 0
+
+            onCurrentTextChanged: updateSqlModelQuery()
         }
 
         Button {
@@ -100,46 +174,22 @@ ColumnLayout {
         HorizontalBarSeries {
             id: mySeries
 
-            axisY: BarCategoryAxis { id: axisYCategories }
-
             labelsVisible: true
 
-            function updateAxis(model, firstRow, rowCount) {
-                var data = []
-                var xmin = -1
-                var xmax = -1
-                for (var i=firstRow;i<rowCount;++i) {
-                    data.push(model.get(i, "maincategory"))
-
-                    var value = model.get(i, "balance")
-                    if (xmin==-1)
-                        xmin = value;
-                    else if (value < xmin)
-                        xmin = value;
-                    if (xmax == -1)
-                        xmax = value;
-                    else if (value > xmax)
-                        xmax = value;
-                }
-
-                axisYCategories.categories = data
-
-                if (xmin < xmax) {
-                    mySeries.axisX.min = xmin
-                    mySeries.axisX.max = xmax
-                    mySeries.axisX.applyNiceNumbers()
-                }
-            }
-
-            VBarModelMapper {
+            VSqlBarModelMapper {
                 id: mapper
+                series: mySeries
+                connectionName: "ACCOUNTS"
+                roleCategory: "maincategory"
+                roleValue: ["balance"]
                 firstBarSetColumn: 2
                 lastBarSetColumn: 2
                 firstRow: 0
                 rowCount: 20
-                model: sqlModel
 
-                onModelReplaced: mySeries.updateAxis(mapper.model, mapper.firstRow, mapper.rowCount)
+                Component.onCompleted: {
+                    model.addColumnToFilter("maincategory")
+                }
             }
 
         }
@@ -153,16 +203,15 @@ ColumnLayout {
 
         item: FilteringDialog {
             id: checkedListItem
-
-            columnModel: sqlModel.columnsToFilter
-            columnDataModel: sqlModel.columnDataModel
+            columnModel: mapper.model.columnsToFilter
+            columnDataModel: mapper.model.columnDataModel
 
             onOk: {
                 filterDialog.isVisible = false
-                sqlModel.updateFilter()
+                mapper.model.updateFilter()
             }
 
-            onColumnSelected: sqlModel.setColumnDataModel(name)
+            onColumnSelected: mapper.model.setColumnDataModel(name)
         }
     }
 }

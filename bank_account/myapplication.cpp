@@ -6,8 +6,6 @@ MyApplication::MyApplication(int &argc, char **argv):
     m_accountsController(this),
     m_accountsWorker(0)
 {
-    qmlRegisterType<SqlListModel>("Models", 1, 0, "SqlListModel");
-
     addController("accountsController", &m_accountsController);
 
     m_accountsWorker = new AccountsWorker();
@@ -21,8 +19,8 @@ MyApplication::MyApplication(int &argc, char **argv):
     connect(&m_accountsController, SIGNAL(createTransactionSignal(int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
     connect(m_accountsWorker, SIGNAL(databaseOpenedSignal(QString)), &m_accountsController, SLOT(databaseOpened(QString)));
     connect(m_accountsWorker, SIGNAL(databaseClosedSignal()), &m_accountsController, SIGNAL(databaseClosedSignal()));
-    connect(m_accountsWorker, SIGNAL(accountsUpdatedSignal()), &m_accountsController, SLOT(accountsUpdated()));
-    connect(m_accountsWorker, SIGNAL(transactionsUpdatedSignal()), &m_accountsController, SLOT(transactionsUpdated()));
+    connect(m_accountsWorker, SIGNAL(accountsUpdatedSignal()), &m_accountsController, SIGNAL(accountsUpdatedSignal()));
+    connect(m_accountsWorker, SIGNAL(transactionsUpdatedSignal()), &m_accountsController, SIGNAL(transactionsUpdatedSignal()));
 
     connect(this, SIGNAL(mainQmlLoaded(QObject*)), this, SLOT(mainQmlLoaded(QObject*)));
 
@@ -40,6 +38,8 @@ void MyApplication::mainQmlLoaded(QObject *obj)
     connect(&m_accountsController, SIGNAL(databaseLoaded(QString)), this, SLOT(databaseLoaded(QString)));
     connect(&m_accountsController, SIGNAL(databaseLoaded(QString)), obj, SLOT(databaseLoaded()));
     connect(&m_accountsController, SIGNAL(databaseClosedSignal()), obj, SLOT(databaseClosed()));
+    connect(&m_accountsController, SIGNAL(accountsUpdatedSignal()), obj, SLOT(reloadDatabase()));
+    connect(&m_accountsController, SIGNAL(transactionsUpdatedSignal()), obj, SLOT(reloadDatabase()));
 }
 
 void MyApplication::readSettings()
