@@ -20,7 +20,5 @@
         <file>AccountsCategories.qml</file>
         <file>TransactionsListView.qml</file>
         <file>TransactionsDelegate.qml</file>
-        <file>EditableText.qml</file>
-        <file>EditableComboBox.qml</file>
     </qresource>
 </RCC>
