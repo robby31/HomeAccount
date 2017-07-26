@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.1
 import MyComponents 1.0
 
 ColumnLayout {
@@ -29,15 +29,7 @@ ColumnLayout {
         highlightFollowsCurrentItem: false
         clip: true
 
-        ScrollIndicator {
-            id: scrollIndicator
-            width: 10
-            height: parent.height
-            anchors {top: parent.top; right: parent.right}
-            handleSize: height > 0 ? listAccounts.visibleArea.heightRatio * height : 0
-            handlePosition: height > 0 ? listAccounts.visibleArea.yPosition * height : 0
-            opacity: listAccounts.moving? 1.0 : 0.0
-        }
+        ScrollBar.vertical: ScrollBar { }
 
         onSelectAccount: selectAccountforTransactions(id, name)
     }

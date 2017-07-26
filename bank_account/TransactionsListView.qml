@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import QtQuick.Controls 1.4
+import QtQuick 2.5
+import QtQuick.Controls 2.1
 
 ListView {
     id: listview
@@ -10,8 +10,7 @@ ListView {
 
     delegate: TransactionsDelegate { unit: listview.unit }
 
-    function selectTransaction(index) {
-        // update selection
-        currentIndex = index
-    }
+    focus: true
+
+    ScrollBar.vertical: ScrollBar { }
 }

@@ -1,5 +1,5 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
+import QtQuick 2.5
+import QtQuick.Controls 2.1
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import MyComponents 1.0
@@ -120,13 +120,22 @@ Page {
                 text: accountName
                 font.bold: true
                 Layout.preferredWidth: contentWidth
+                clip: true
             }
 
             TextField {
                 id: textFilter
+                height: 20
+                clip: true
                 placeholderText: "Filter transactions"
+                selectByMouse: true
                 Layout.preferredWidth: 400
                 onAccepted: updateTransactionsQuery()
+
+                background: Rectangle {
+                    color: parent.focus ? "white" : "transparent"
+                    border.color: parent.focus ? "#21be2b" : "grey"
+                }
             }
 
             Row {
@@ -173,7 +182,7 @@ Page {
 
             onCreate_transaction: {
                 if (accountId >= 0)
-                    create_transaction(accountId, date, payee, memo, Number.fromLocaleString(Qt.locale(), amount))
+                    create_new_transaction(accountId, date, payee, memo, amount)
             }
         }
     }

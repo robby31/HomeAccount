@@ -1,5 +1,5 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
+import QtQuick 2.5
+import QtQuick.Controls 1.4
 
 Item {
     width: column.width
@@ -78,7 +78,7 @@ Item {
                 id: creationButton
                 text: "create"
                 enabled: payee.text != ""
-                onClicked: create_transaction(calendar.selectedDate, payee.text, memo.text, amount.text)
+                onClicked: create_transaction(calendar.selectedDate, payee.text, memo.text, Number.fromLocaleString(Qt.locale(), amount.text))
             }
         }
     }

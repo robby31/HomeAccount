@@ -33,7 +33,7 @@ void MyApplication::mainQmlLoaded(QObject *obj)
     connect(obj, SIGNAL(closeDatabase()), &m_accountsController, SLOT(closeDatabase()));
     connect(obj, SIGNAL(importQif(int,QString)), &m_accountsController, SLOT(importQif(int,QString)));
     connect(obj, SIGNAL(create_account(QString, QString)), &m_accountsController, SLOT(create_account(QString, QString)));
-    connect(obj, SIGNAL(create_transaction(int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
+    connect(obj, SIGNAL(create_new_transaction(int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
 
     connect(&m_accountsController, SIGNAL(databaseLoaded(QString)), this, SLOT(databaseLoaded(QString)));
     connect(&m_accountsController, SIGNAL(databaseLoaded(QString)), obj, SLOT(databaseLoaded()));

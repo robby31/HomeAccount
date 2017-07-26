@@ -1,5 +1,4 @@
 import QtQuick 2.3
-import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import MyComponents 1.0
@@ -17,7 +16,7 @@ MyApplication {
     signal closeDatabase()
     signal importQif(int idAccount, string filename)
     signal create_account(string name, string number)
-    signal create_transaction(int id_account, date date, string payee, string memo, string amount)
+    signal create_new_transaction(int id_account, date date, string payee, string memo, string amount)
 
     controller: accountsController
     srcPages: "home.qml"

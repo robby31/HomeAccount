@@ -1,8 +1,5 @@
 import QtQuick 2.3
-import QtQuick.Controls 1.2
-import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
-import QtQml.Models 2.2
+import QtQuick.Controls 2.1
 import MyComponents 1.0
 
 Page {
@@ -38,51 +35,29 @@ Page {
         query: "SELECT id, name, number, (SELECT SUM(transactions.amount) FROM transactions WHERE transactions.account_id=accounts.id and split_id=0) AS amount FROM accounts"
     }
 
-    ListView {
-        id: listView
+    SwipeView {
+        id: view
         anchors.fill: parent
-        snapMode: ListView.SnapOneItem
-        highlightRangeMode: ListView.StrictlyEnforceRange
-        highlightMoveDuration: 250
-        focus: false
-        orientation: ListView.Horizontal
-        boundsBehavior: Flickable.StopAtBounds
 
-        model:     ObjectModel {
+        AccountsListView { model: accountsModel }
 
-            AccountsListView {
-                id: accountsListView
-                width: listView.width
-                height: listView.height
-                model: accountsModel
-            }
+        AccountsCategories { }
 
-            AccountsCategories {
-                id: categorieSeries
-                width: listView.width
-                height: listView.height
-            }
+        AccountsBarSeries { model: accountsModel }
 
-            AccountsBarSeries {
-                id: barSeries
-                width: listView.width
-                height: listView.height
-                model: accountsModel
-            }
+        AccountsAreaSeries { }
 
-            AccountsAreaSeries {
-                id: areaSeries
-                width: listView.width
-                height: listView.height
-            }
-
-            RevenusDepensesGraph {
-                id: revenusdepenses
-                width: listView.width
-                height: listView.height
-            }
-        }
+        RevenusDepensesGraph { }
     }
 
+    PageIndicator {
+        id: indicator
+
+        count: view.count
+        currentIndex: view.currentIndex
+
+        anchors.bottom: view.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
 }
 

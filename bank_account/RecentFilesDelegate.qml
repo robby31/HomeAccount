@@ -1,5 +1,4 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
+import QtQuick 2.5
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
 import MyComponents 1.0

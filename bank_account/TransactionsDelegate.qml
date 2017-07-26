@@ -1,138 +1,119 @@
-import QtQuick 2.6
-import QtQuick.Controls 1.4
+import QtQuick 2.5
+import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.1
-import QtGraphicalEffects 1.0
 import MyComponents 1.0
 
-Item {
+ListViewDelegate {
     id: delegate
-    width: parent.width
-    height: delegate.ListView.isCurrentItem ? 40 : item.height + 10
-    clip: true
+
+    height: delegate.ListView.isCurrentItem ? 35 : 22
 
     property string unit: "€"
     property int fontSize: delegate.ListView.isCurrentItem ? 14 : 10
     property color textColor: model["balance"] < 0 ? "red" : "black"
 
-    Rectangle {
-        id: hover
-        anchors.fill: parent
-        color: theme.hoverColor
-        visible: mouseArea.containsMouse
-    }
+    swipe.right: Label {
+        id: deleteLabel
+        text: qsTr("Delete")
+        color: "white"
+        verticalAlignment: Label.AlignVCenter
+        padding: 12
+        height: parent.height
+        anchors.right: parent.right
 
-    Rectangle {
-        id: highlight
-        anchors.fill: parent
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: theme.highlightGradientStart }
-            GradientStop { position: 1.0; color: theme.highlightGradientEnd }
+        SwipeDelegate.onClicked: {
+            delegate.ListView.view.model.remove(index)
+            swipe.close()
         }
 
-        visible: mouseArea.pressed || delegate.ListView.isCurrentItem
-
-        onVisibleChanged: {
-            if (visible) {
-                transactionCategory.sourceComponent = paramEditable
-                transactionStatus.sourceComponent = paramEditable
-            } else {
-                transactionCategory.sourceComponent = paramReadOnly
-                transactionStatus.sourceComponent = paramReadOnly
-            }
+        background: Rectangle {
+            color: deleteLabel.SwipeDelegate.pressed ? Qt.darker("tomato", 1.1) : "tomato"
         }
     }
 
-    Item {
-        id: item
-
-        height: row.height
-
-        anchors {
-            left: parent.left
-            leftMargin: 10
-            right: parent.right
-            rightMargin: 10
-            verticalCenter: parent.verticalCenter
-        }
-
-        RowLayout {
-            id: row
-            width: parent.width
+    contentItem: Item {
+        Row {
+            anchors.fill: parent
             spacing: 10
 
             Text {
                 id: transactionDate
-                Layout.preferredWidth: 150
-                Layout.preferredHeight: contentHeight
+                anchors.verticalCenter: parent.verticalCenter
+                width: 150
+                height: delegate.height
+                verticalAlignment: Text.AlignVCenter
                 font.pointSize: delegate.fontSize
                 text: Date.fromLocaleString(Qt.locale(), model["date"], "yyyy-MM-dd").toLocaleDateString(Qt.locale(), "ddd dd MMM yyyy")
                 elide: Text.ElideRight
                 color: delegate.textColor
+                clip: true
             }
 
-            Text {
+            EditableText {
                 id: transactionPayee
-                Layout.preferredWidth: 300
-                Layout.preferredHeight: contentHeight
-                font.pointSize: delegate.fontSize
+                anchors.verticalCenter: parent.verticalCenter
+                width: 300
+                height: delegate.height
                 text: model["payee"]
-                elide: Text.ElideRight
                 color: delegate.textColor
+                font.pointSize: delegate.fontSize
+                onEditingFinished: model["payee"] = text
+                clip: true
             }
 
-            Text {
+            EditableText {
                 id: transactionMemo
-                Layout.preferredWidth: 400
-                Layout.preferredHeight: contentHeight
-                font.pointSize: delegate.fontSize
+                anchors.verticalCenter: parent.verticalCenter
+                width: 400
+                height: delegate.height
                 text: model["memo"]
-                elide: Text.ElideRight
                 color: delegate.textColor
-            }
-
-            Loader {
-                id: transactionCategory
-                Layout.preferredWidth: 300
-                sourceComponent: paramReadOnly
-
-                property string value: model["category"]
-                property var comboModel: categoryModel
-                property string comboTextRole: "category"
-                property bool comboEditable: true
-
-                function valueUpdated(value) {
-                    model["category"] = value
-                }
-            }
-
-
-            Text {
-                id: transactionAmount
-                Layout.preferredWidth: 100
-                Layout.preferredHeight: contentHeight
                 font.pointSize: delegate.fontSize
-                text: "%1 %2".arg(Number(model["amount"]).toLocaleString(Qt.locale())).arg(delegate.unit)
-                elide: Text.ElideRight
-                color: delegate.textColor
+                onEditingFinished: model["memo"] = text
             }
 
-            Loader {
+            EditableComboBox {
+                id: transactionCategory
+                anchors.verticalCenter: parent.verticalCenter
+                width: 300
+                height: delegate.height
+                comboModel: categoryModel
+                textRole: "category"
+                color: delegate.textColor
+                fontSize: delegate.fontSize
+                initValue: model["category"]
+                onTextUpdated: model["category"] = currentText
+            }
+
+            EditableText {
+                id: transactionAmount
+                anchors.verticalCenter: parent.verticalCenter
+                width: 130
+                height: delegate.height
+                text: Number(model["amount"]).toLocaleString(Qt.locale())
+                color: delegate.textColor
+                font.pointSize: delegate.fontSize
+                validator: DoubleValidator { decimals: 2; notation: DoubleValidator.StandardNotation }
+                onEditingFinished: model["amount"] = Number.fromLocaleString(Qt.locale(), text)
+            }
+
+            EditableComboBox {
                 id: transactionStatus
-                Layout.preferredWidth: 120
-                sourceComponent: paramReadOnly
-
-                property string value: model["status"]
-                property var comboModel: statusModel
-                property string comboTextRole: "text"
-                property bool comboEditable: false
-
-                function valueUpdated(value) {
-                    model["status"] = value
-                }
+                anchors.verticalCenter: parent.verticalCenter
+                width: 130
+                height: delegate.height
+                comboModel: statusModel
+                textRole: "text"
+                color: delegate.textColor
+                fontSize: delegate.fontSize
+                initValue: model["status"]
+                onTextUpdated: model["status"] = currentText
             }
 
             Row
             {
+                anchors.verticalCenter: parent.verticalCenter
+                height: delegate.height
                 Layout.fillWidth: true
                 layoutDirection: Qt.RightToLeft
                 spacing: 10
@@ -143,73 +124,20 @@ Item {
                     width: height
                     height: delegate.height/2
                     anchors.verticalCenter: parent.verticalCenter
-                    opacity: model["is_split"] === "1" ? 1.0 : 0.5
+                    opacity: model["is_split"] === "1" ? 1.0 : 0.0
                 }
 
                 Text {
                     id: transactionBalance
                     width: contentWidth
+                    height: delegate.height
+                    verticalAlignment: Text.AlignVCenter
                     font.pointSize: delegate.fontSize
                     text: "%1 %2".arg(Number(model["balance"]).toLocaleString(Qt.locale())).arg(delegate.unit)
                     color: delegate.textColor
+                    clip: true
                 }
             }
         }
     }
-
-    Component {
-        id: paramReadOnly
-
-        Text {
-            text: value
-            elide: Text.ElideRight
-            color: textColor
-        }
-    }
-
-    Component {
-        id: paramEditable
-
-        ComboBox {
-            model: comboModel
-            textRole: comboTextRole
-            editable: comboEditable
-            focus: true
-
-            property bool toUpdate: false
-
-            Component.onCompleted: {
-                var index = find(value)
-                if (index !== -1 && index !== currentIndex)
-                    currentIndex = index
-            }
-
-            onCurrentIndexChanged: {
-                if (toUpdate)
-                    valueUpdated(currentText)
-                toUpdate = false
-            }
-
-            onActivated: toUpdate = true
-
-            onAccepted: valueUpdated(currentText)
-        }
-    }
-
-    Rectangle {
-        id: separatorBottom
-        width: parent.width
-        height: 1
-        anchors { left: parent.left; bottom: parent.bottom }
-        color: theme.separatorColor
-    }
-
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: true
-        onClicked: delegate.ListView.view.selectTransaction(index)
-        visible: !delegate.ListView.isCurrentItem
-    }
 }
-
