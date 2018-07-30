@@ -52,7 +52,7 @@ ColumnLayout {
         ComboBox {
             id: comboYear
 
-            height: 20
+            height: 30
             model: yearModel
             textRole: "year"
 
@@ -107,7 +107,7 @@ ColumnLayout {
         ComboBox {
             id: comboAccount
 
-            height: 20
+            height: 30
             model: accountsModel
             textRole: "name"
 
@@ -153,7 +153,7 @@ ColumnLayout {
         }
 
         Button {
-            height: 20
+            height: 30
             text: "Filter"
             onClicked: filterDialog.isVisible = true
         }

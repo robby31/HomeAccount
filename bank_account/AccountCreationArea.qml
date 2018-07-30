@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 2.1
 
 Item {
+    id: item1
     width: column.width*1.2
     height: column.height*1.2
 
@@ -10,13 +11,14 @@ Item {
 
     Column {
         id: column
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
         spacing: 20
         anchors.margins: 10
 
         Row {
             id: rowName
             spacing: 5
-            height: nameText.height
 
             Text {
                 id: nameText
@@ -27,6 +29,8 @@ Item {
             TextField {
                 id: accountName
                 width: 200
+                height: 30
+                anchors.verticalCenter: parent.verticalCenter
                 placeholderText: "account name"
             }
         }
@@ -34,7 +38,6 @@ Item {
         Row {
             id: rowNumber
             spacing: 5
-            height: numberText.height
 
             Text {
                 id: numberText
@@ -45,6 +48,8 @@ Item {
             TextField {
                 id: accountNumber
                 width: 200
+                height: 30
+                anchors.verticalCenter: parent.verticalCenter
                 placeholderText: "account number"
             }
         }

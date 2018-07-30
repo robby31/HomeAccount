@@ -16,27 +16,16 @@ class AccountsWorker : public Worker
 
 public:
     explicit AccountsWorker(QObject *parent = 0);
-    virtual ~AccountsWorker();
-
-    void initializeWorker();
-
-private:
-    bool initializeDatabase();
 
 signals:
-    void initializeWorkerSignal();
-    void databaseOpenedSignal(const QString &fileUrl);
-    void databaseClosedSignal();
     void accountsUpdatedSignal();
     void transactionsUpdatedSignal();
 
 private slots:
-    void _initializeWorker();
-    void loadDatabase(const QString &fileUrl);
-    void closeDatabase();
     void importQif(const int &idAccount, const QString &fileUrl);
     void create_account(const QString &name, const QString &number);
     void create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount);
+    void create_split_transaction(const int &idAccount, const int &idTransaction, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount);
 };
 
 #endif // ACCOUNTSWORKER_H

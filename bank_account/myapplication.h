@@ -16,10 +16,11 @@ class MyApplication : public Application
 public:
     MyApplication(int &argc, char **argv);
 
-    QStringList recentFiles() const { return m_recentFiles; }
+    QStringList recentFiles() const;
 
 private:
     void readSettings();
+    void saveSettings();
 
 signals:
     void recentFilesChanged();
@@ -27,6 +28,8 @@ signals:
 public slots:
     void mainQmlLoaded(QObject *obj);
     void databaseLoaded(const QString &fileUrl);
+
+    void check_split_id(const int &transactionId);
 
 private:
     QSettings m_settings;

@@ -2,19 +2,31 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 
 Item {
-    width: column.width
-    height: calendar.height
+    width: 500
+    height: 300
+
+    property date parent_date
 
     signal create_transaction(date date, string payee, string memo, string amount)
 
     Row {
+        id: row
+        spacing: 50
+        anchors.fill: parent
+
         Calendar {
             id: calendar
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 0
+            anchors.top: parent.top
+            anchors.topMargin: 0
+            weekNumbersVisible: false
+            visible: parent_date.toString() == "Invalid Date"
         }
 
         Column {
             id: column
-            spacing: 10
+            spacing: 20
 
             Row {
                 id: rowPayee
@@ -78,7 +90,12 @@ Item {
                 id: creationButton
                 text: "create"
                 enabled: payee.text != ""
-                onClicked: create_transaction(calendar.selectedDate, payee.text, memo.text, Number.fromLocaleString(Qt.locale(), amount.text))
+                onClicked: {
+                    if (parent_date.toString() == "Invalid Date")
+                        create_transaction(calendar.selectedDate, payee.text, memo.text, Number.fromLocaleString(Qt.locale(), amount.text))
+                    else
+                        create_transaction(parent_date, payee.text, memo.text, Number.fromLocaleString(Qt.locale(), amount.text))
+                }
             }
         }
     }

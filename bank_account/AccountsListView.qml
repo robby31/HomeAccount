@@ -10,8 +10,14 @@ ColumnLayout {
     property alias model: listAccounts.model
 
     Row {
+        Layout.preferredWidth: parent.width - 20
+        Layout.preferredHeight: 40
+        anchors.horizontalCenter: parent.horizontalCenter
+
         Button {
-            text: "New Account"
+            anchors.verticalCenter: parent.verticalCenter
+            height: 20
+            text: "+ New Account"
             onClicked: accountcreationDialog.open()
         }
     }

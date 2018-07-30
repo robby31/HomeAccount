@@ -4,42 +4,46 @@ MyApplication::MyApplication(int &argc, char **argv):
     Application(argc, argv),
     m_settings("HIMBERT", "HomeAccount"),
     m_accountsController(this),
-    m_accountsWorker(0)
+    m_accountsWorker(Q_NULLPTR)
 {
     addController("accountsController", &m_accountsController);
 
     m_accountsWorker = new AccountsWorker();
     addWorker(&m_accountsController, m_accountsWorker);
-    m_accountsWorker->initializeWorker();
 
-    connect(&m_accountsController, SIGNAL(loadingSignal(QString)), m_accountsWorker, SLOT(loadDatabase(QString)));
-    connect(&m_accountsController, SIGNAL(closeSignal()), m_accountsWorker, SLOT(closeDatabase()));
     connect(&m_accountsController, SIGNAL(importQifSignal(int,QString)), m_accountsWorker, SLOT(importQif(int,QString)));
     connect(&m_accountsController, SIGNAL(createAccountSignal(QString, QString)), m_accountsWorker, SLOT(create_account(QString,QString)));
-    connect(&m_accountsController, SIGNAL(createTransactionSignal(int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
-    connect(m_accountsWorker, SIGNAL(databaseOpenedSignal(QString)), &m_accountsController, SLOT(databaseOpened(QString)));
-    connect(m_accountsWorker, SIGNAL(databaseClosedSignal()), &m_accountsController, SIGNAL(databaseClosedSignal()));
+    connect(&m_accountsController, SIGNAL(createTransactionSignal(int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));    
+    connect(&m_accountsController, SIGNAL(createSplitTransactionSignal(int,int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_split_transaction(int,int,QDateTime,QString,QString,QString)));
     connect(m_accountsWorker, SIGNAL(accountsUpdatedSignal()), &m_accountsController, SIGNAL(accountsUpdatedSignal()));
     connect(m_accountsWorker, SIGNAL(transactionsUpdatedSignal()), &m_accountsController, SIGNAL(transactionsUpdatedSignal()));
 
     connect(this, SIGNAL(mainQmlLoaded(QObject*)), this, SLOT(mainQmlLoaded(QObject*)));
 
     readSettings();
+
+    // save settings to erase wrong Url
+    saveSettings();
 }
 
 void MyApplication::mainQmlLoaded(QObject *obj)
 {
-    connect(obj, SIGNAL(loadDatabase(QString)), &m_accountsController, SLOT(loadDatabase(QString)));
-    connect(obj, SIGNAL(closeDatabase()), &m_accountsController, SLOT(closeDatabase()));
+    setdatabaseDiverName("QSQLITE");
+    setdatabaseConnectionName("ACCOUNTS");
+    connect(this, SIGNAL(databaseOpened(QString)), this, SLOT(databaseLoaded(QString)));
+
     connect(obj, SIGNAL(importQif(int,QString)), &m_accountsController, SLOT(importQif(int,QString)));
     connect(obj, SIGNAL(create_account(QString, QString)), &m_accountsController, SLOT(create_account(QString, QString)));
     connect(obj, SIGNAL(create_new_transaction(int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
+    connect(obj, SIGNAL(create_new_split_transaction(int,int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_split_transaction(int,int,QDateTime,QString,QString,QString)));
 
-    connect(&m_accountsController, SIGNAL(databaseLoaded(QString)), this, SLOT(databaseLoaded(QString)));
-    connect(&m_accountsController, SIGNAL(databaseLoaded(QString)), obj, SLOT(databaseLoaded()));
-    connect(&m_accountsController, SIGNAL(databaseClosedSignal()), obj, SLOT(databaseClosed()));
     connect(&m_accountsController, SIGNAL(accountsUpdatedSignal()), obj, SLOT(reloadDatabase()));
     connect(&m_accountsController, SIGNAL(transactionsUpdatedSignal()), obj, SLOT(reloadDatabase()));
+}
+
+QStringList MyApplication::recentFiles() const
+{
+    return m_recentFiles;
 }
 
 void MyApplication::readSettings()
@@ -49,24 +53,72 @@ void MyApplication::readSettings()
     int size = m_settings.beginReadArray("recentFiles");
     for (int i = 0; i < size; ++i) {
         m_settings.setArrayIndex(i);
-        m_recentFiles << m_settings.value("url").toString();
+        QUrl url(m_settings.value("url").toString());
+        QFileInfo info(url.toLocalFile());
+        if (url.isLocalFile() && info.exists())
+            m_recentFiles << m_settings.value("url").toString();
+        else
+            qCritical() << "invalid url" << url;
     }
     m_settings.endArray();
 
     emit recentFilesChanged();
 }
 
+void MyApplication::saveSettings()
+{
+    m_settings.remove("recentFiles");
+    int index = 0;
+    foreach (QString url, m_recentFiles)
+    {
+        m_settings.beginWriteArray("recentFiles");
+        m_settings.setArrayIndex(index);
+        index++;
+        m_settings.setValue("url", url);
+        m_settings.endArray();
+    }
+}
+
 void MyApplication::databaseLoaded(const QString &fileUrl)
 {
-    if (!m_recentFiles.contains(fileUrl))
+    if (!m_accountsController.initializeDatabase())
     {
-        int size = m_settings.beginReadArray("recentFiles");
-        m_settings.endArray();
-        m_settings.beginWriteArray("recentFiles");
-        m_settings.setArrayIndex(size);
-        m_settings.setValue("url", fileUrl);
-        m_settings.endArray();
-
-        readSettings();
+        qCritical() << "unable to initialize database" << fileUrl;
     }
+    else
+    {
+        QString url = QUrl::fromLocalFile(fileUrl).toString();
+        if (m_recentFiles.contains(url))
+            m_recentFiles.move(m_recentFiles.indexOf(url), 0);
+        else
+            m_recentFiles.prepend(url);
+
+        saveSettings();
+        emit recentFilesChanged();
+    }
+}
+
+void MyApplication::check_split_id(const int &transactionId)
+{
+    QSqlQuery query(GET_DATABASE("ACCOUNTS"));
+    query.prepare("SELECT count(id) from transactions WHERE split_id=:split_id");
+    query.bindValue(":split_id", transactionId);
+
+    if (!query.exec())
+    {
+        qCritical() << "invalid query" << query.lastError().text();
+    }
+    else
+    {
+        if (query.next() && query.value(0).toInt() == 0)
+        {
+            // no more transaction related to transactionId
+            // so transactionId is not split any more
+            query.prepare("UPDATE transactions SET is_split=0 WHERE id=:id");
+            query.bindValue(":id", transactionId);
+            if (!query.exec())
+                qCritical() << "unable to update transaction" << query.lastError().text();
+        }
+    }
+
 }

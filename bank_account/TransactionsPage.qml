@@ -33,41 +33,22 @@ Page {
     }
 
     function reloadDatabase() {
-        transactionsModel.reload()
+        stack.currentItem.reload()
+        categoryModel.reload()
     }
 
-    SqlListModel {
-        id: transactionsModel
-        connectionName: "ACCOUNTS"
+    function importQIF() {
+        if (accountId >= 0) {
+            qifFileDialog.idAccount = accountId
+            qifFileDialog.open()
+        }
     }
 
     onActionClicked: {
         if (name == "Close")
             closeTransactions()
         else if (name == "Import QIF")
-        {
-            if (accountId >= 0) {
-                qifFileDialog.idAccount = accountId
-                qifFileDialog.open()
-            }
-        }
-    }
-
-    function updateTransactionsQuery()
-    {
-        if (transactions.model)
-        {
-            if (accountId >= 0) {
-                transactions.model.tablename = "transactions"
-                if (textFilter.text)
-                    transactions.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions where account_id=%1 and split_id=0 and %2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(textFilter.text)
-                else
-                    transactions.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions where account_id=%1 and split_id=0 ORDER BY date DESC, abs(amount) DESC".arg(accountId)
-            }
-        }
-
-        categoryModel.reload()
-        balanceModel.reload()
+            importQIF()
     }
 
     ListModel {
@@ -77,114 +58,23 @@ Page {
         ListElement { text: "cleared" }
     }
 
-
     SqlListModel {
         id: categoryModel
         connectionName: "ACCOUNTS"
         query: "SELECT DISTINCT category FROM transactions ORDER BY category"
     }
 
-    SqlListModel {
-        id: balanceModel
-        connectionName: "ACCOUNTS"
-        query: "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
-        onModelReset: {
-            if (balanceModel.rowCount >= 1) {
-                var value = balanceModel.get(0, "total")
-                balance.text = "%1 %2".arg(Number(value).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
-                if (value < 0)
-                    balance.color = "red"
-                else
-                    balance.color = "blue"
-            }
-        }
+    function selectDetails(id, amount, date) {
+        stack.push("SplitTransactionListView.qml", {"accountId": accountId, "transactionId": id, "transactionAmount": amount, "transactionDate": date, "unit": transactionsPage.unit})
     }
 
-    ColumnLayout {
-        id: mainLayout
+    StackView {
+        id: stack
+
         anchors.fill: parent
         anchors.margins: 10
-        spacing: 10
 
-        RowLayout {
-            id: rowLayout
-            spacing: 10
-
-            MyButton {
-                sourceComponent: Text { text: "< Back" }
-                onButtonClicked: closeTransactions()
-            }
-
-            Text {
-                id: textAccountName
-                text: accountName
-                font.bold: true
-                Layout.preferredWidth: contentWidth
-                clip: true
-            }
-
-            TextField {
-                id: textFilter
-                height: 20
-                clip: true
-                placeholderText: "Filter transactions"
-                selectByMouse: true
-                Layout.preferredWidth: 400
-                onAccepted: updateTransactionsQuery()
-
-                background: Rectangle {
-                    color: parent.focus ? "white" : "transparent"
-                    border.color: parent.focus ? "#21be2b" : "grey"
-                }
-            }
-
-            Row {
-                Layout.fillWidth: true
-                layoutDirection: Qt.RightToLeft
-                spacing: 10
-                clip: true
-
-                Text {
-                    width: contentWidth
-                    text: transactions.model.rowCount + " lines"
-                    clip: true
-                }
-
-                Text {
-                    width: contentWidth
-                    text: "-"
-                    clip: true
-                }
-
-                Text {
-                    id: balance
-                    width: contentWidth
-                    clip: true
-                }
-            }
-
-        }
-
-        TransactionsListView {
-            id: transactions
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            model: transactionsModel
-            unit: transactionsPage.unit
-
-            onModelChanged: updateTransactionsQuery()
-        }
-
-        TransactionCreationArea {
-            id: creationArea
-
-            onCreate_transaction: {
-                if (accountId >= 0)
-                    create_new_transaction(accountId, date, payee, memo, amount)
-            }
-        }
+        Component.onCompleted: stack.push("TransactionsListView.qml", {"accountId": accountId, "unit": transactionsPage.unit})
     }
 
     FileDialog {

@@ -9,62 +9,44 @@ ColumnLayout {
     spacing: 10
 
     property int accountId: -1
+    property int transactionId: -1
+    property date transactionDate
+    property double transactionAmount: -1
     property string unit: "€"
-
-
-    onVisibleChanged: {
-        if (visible == true)
-        {
-            // update model if is_split changed
-            transactionsModel.reload()
-        }
-    }
 
     SqlListModel {
         id: transactionsModel
         connectionName: "ACCOUNTS"
-        onRowsRemoved: balanceModel.reload()
+        onDataChanged: totalModel.reload()
+        onRowsRemoved: {
+            _app.check_split_id(transactionId)
+            totalModel.reload()
+        }
     }
 
     SqlListModel {
-        id: balanceModel
+        id: totalModel
         connectionName: "ACCOUNTS"
-        query: "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
-        onModelReset: {
-            if (balanceModel.rowCount >= 1) {
-                var value = balanceModel.get(0, "total")
-                balanceText.text = "%1 %2".arg(Number(value).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
-                if (value < 0)
-                    balanceText.color = "red"
-                else
-                    balanceText.color = "blue"
-            }
-        }
+        query: transactionsModel.query ? "SELECT SUM(amount) AS total FROM (%1)".arg(transactionsModel.query) : ""
+        onModelReset: total.text = "%1 %2".arg(Number(totalModel.get(0, "total")).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
     }
 
     function updateTransactionsQuery()
     {
         if (listview.model)
         {
-            if (accountId >= 0) {
+            if (accountId >= 0 && transactionId >= 0) {
                 listview.model.tablename = "transactions"
                 if (textFilter.text)
-                {
-                    listview.model.query = "select * from transactions where account_id=%1 and split_id=0 and %2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(textFilter.text)
-                    balanceModel.query = "SELECT sum(amount) AS total from (%1)".arg(listview.model.query)
-                }
+                    listview.model.query = "select * from transactions where account_id=%1 and split_id=%3 and %2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(textFilter.text).arg(transactionId)
                 else
-                {
-                    listview.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions where account_id=%1 and split_id=0 ORDER BY date DESC, abs(amount) DESC".arg(accountId)
-                    balanceModel.query = "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
-                }
+                    listview.model.query = "select * from transactions where account_id=%1 and split_id=%2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(transactionId)
             }
         }
     }
 
     function reload() {
-        transactionsModel.reload()
-        balanceModel.reload()
+        updateTransactionsQuery()
     }
 
     RowLayout {
@@ -72,8 +54,8 @@ ColumnLayout {
         spacing: 10
 
         MyButton {
-            sourceComponent: Text { text: "< Accounts" }
-            onButtonClicked: closeTransactions()
+            sourceComponent: Text { text: "< Back" }
+            onButtonClicked: stack.pop()
         }
 
         Text {
@@ -106,9 +88,26 @@ ColumnLayout {
             clip: true
 
             Text {
-                id: balanceText
+                id: transactionAmountText
                 anchors.verticalCenter: parent.verticalCenter
                 width: contentWidth
+                text: "%1 %2".arg(Number(transactionAmount).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
+                color: "blue"
+                clip: true
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                width: contentWidth
+                text: "-"
+                clip: true
+            }
+
+            Text {
+                id: total
+                anchors.verticalCenter: parent.verticalCenter
+                width: contentWidth
+                color: transactionAmountText.text !== text ? "red" : "green"
                 clip: true
             }
 
@@ -117,13 +116,6 @@ ColumnLayout {
                 height: 30
                 text: "+ Add transaction"
                 onClicked: drawer.open()
-            }
-
-            Button {
-                anchors.verticalCenter: parent.verticalCenter
-                height: 30
-                text: "Import QIF"
-                onClicked: importQIF()
             }
         }
 
@@ -137,7 +129,7 @@ ColumnLayout {
         clip: true
 
         model: transactionsModel
-        delegate: TransactionsDelegate { splitEnabled: true; unit: mainLayout.unit }
+        delegate: TransactionsDelegate { unit: mainLayout.unit }
         currentIndex: 0
 
         focus: true
@@ -158,13 +150,16 @@ ColumnLayout {
 
             height: 300
 
+            parent_date: transactionDate
+
             anchors { verticalCenter: parent.verticalCenter ; horizontalCenter: parent.horizontalCenter }
 
             onCreate_transaction: {
                 if (accountId >= 0)
-                    create_new_transaction(accountId, date, payee, memo, amount)
+                    create_new_split_transaction(accountId, transactionId, date, payee, memo, amount)
             }
         }
     }
 }
+
 

@@ -12,7 +12,7 @@ Page {
 
     onActionClicked: {
         if (name == "Close")
-            closeDatabase()
+            _app.databaseName = ""
     }
 
     ListModel {

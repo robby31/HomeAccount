@@ -3,98 +3,6 @@
 AccountsWorker::AccountsWorker(QObject *parent):
     Worker(parent)
 {
-    connect(this, SIGNAL(initializeWorkerSignal()), this, SLOT(_initializeWorker()));
-}
-
-AccountsWorker::~AccountsWorker()
-{
-    QSqlDatabase db = GET_DATABASE("ACCOUNTS");
-
-    if (db.isOpen())
-        db.close();
-}
-
-void AccountsWorker::initializeWorker()
-{
-    emit initializeWorkerSignal();
-}
-
-void AccountsWorker::_initializeWorker()
-{
-    CREATE_DATABASE("QSQLITE", "ACCOUNTS");
-}
-
-bool AccountsWorker::initializeDatabase()
-{
-    // create all tables if necessary
-    QSqlQuery query(GET_DATABASE("ACCOUNTS"));
-
-    if (!query.exec("create table IF NOT EXISTS accounts "
-                    "(id INTEGER primary key, "
-                    "name UNIQUE, "
-                    "number INTEGER UNIQUE NOT NULL)"))
-        return false;
-
-    if (!query.exec("create table IF NOT EXISTS transactions "
-                    "(id INTEGER primary key, "
-                    "number DEFAULT '', "
-                    "account_id INTEGER NOT NULL, "
-                    "is_split INTEGER DEFAULT 0, "
-                    "split_id INTEGER DEFAULT 0, "
-                    "date DATE DEFAULT CURRENT_DATE, "
-                    "amount REAL DEFAULT 0.0, "
-                    "status, "
-                    "payee DEFAULT '', "
-                    "category DEFAULT '', "
-                    "memo DEFAULT '', "
-                    "UNIQUE(account_id, split_id, date, payee, amount))"))
-        return false;
-
-    return true;
-}
-
-void AccountsWorker::loadDatabase(const QString &fileUrl)
-{
-    emit processStarted();
-
-    QSqlDatabase db = GET_DATABASE("ACCOUNTS");
-
-    if (db.isOpen())
-        db.close();
-
-    QString filename = QUrl::fromUserInput(fileUrl).toLocalFile();
-    db.setDatabaseName(QDir::toNativeSeparators(filename));
-
-    if (db.open())
-    {
-        if  (initializeDatabase())
-        {
-            emit processOver("Loading done.");
-            emit databaseOpenedSignal(fileUrl);
-        }
-        else
-        {
-            emit errorDuringProcess("unable to create table transactions.");
-            db.close();
-        }
-    }
-    else
-    {
-        emit errorDuringProcess(QString("unable to open database %1").arg(filename));
-    }
-}
-
-void AccountsWorker::closeDatabase()
-{
-    emit processStarted();
-
-    QSqlDatabase db = GET_DATABASE("ACCOUNTS");
-
-    db.close();
-
-    emit databaseClosedSignal();
-
-    emit processOver();
 }
 
 void AccountsWorker::importQif(const int &idAccount, const QString &fileUrl)
@@ -189,3 +97,68 @@ void AccountsWorker::create_transaction(const int &idAccount, const QDateTime &d
         emit errorDuringProcess(query.lastError().text());
     }
 }
+
+void AccountsWorker::create_split_transaction(const int &idAccount, const int &idTransaction, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount)
+{
+    emit processStarted();
+
+    QSqlDatabase db = GET_DATABASE("ACCOUNTS");
+
+    if (db.isValid())
+    {
+        QSqlQuery query(db);
+
+        if (db.transaction())
+        {
+            query.prepare("INSERT INTO transactions (account_id, split_id, date, payee, memo, amount) "
+                          "VALUES (:account_id, :split_id, :date, :payee, :memo, :amount)");
+
+            query.bindValue(":account_id", idAccount);
+            query.bindValue(":split_id", idTransaction);
+            query.bindValue(":date", QVariant::fromValue(QVariant::fromValue(date).toDate()));
+            query.bindValue(":payee", payee);
+            query.bindValue(":memo", memo);
+            query.bindValue(":amount", amount);
+
+            if (query.exec())
+            {
+                query.prepare("UPDATE transactions SET is_split='1' WHERE id=:id");
+                query.bindValue(":id", idTransaction);
+
+                if (query.exec())
+                {
+                    if (db.commit())
+                    {
+                        emit processOver(QString("Transaction created."));
+                        emit transactionsUpdatedSignal();
+                    }
+                    else
+                    {
+                        db.rollback();
+                        qCritical() << db.lastError().text();
+                        emit errorDuringProcess("unable to commit transaction");
+                    }
+                }
+                else
+                {
+                    db.rollback();
+                    emit errorDuringProcess(query.lastError().text());
+                }
+            }
+            else
+            {
+                db.rollback();
+                emit errorDuringProcess(query.lastError().text());
+            }
+        }
+        else
+        {
+            emit errorDuringProcess("unable to start transaction");
+        }
+    }
+    else
+    {
+        emit errorDuringProcess("invalid database");
+    }
+}
+

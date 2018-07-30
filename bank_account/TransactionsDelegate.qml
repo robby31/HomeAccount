@@ -1,6 +1,7 @@
-import QtQuick 2.5
-import QtQuick.Controls 2.1
+import QtQuick 2.9
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0
 import MyComponents 1.0
 
 ListViewDelegate {
@@ -11,23 +12,47 @@ ListViewDelegate {
     property string unit: "€"
     property int fontSize: delegate.ListView.isCurrentItem ? 14 : 10
     property color textColor: model["balance"] < 0 ? "red" : "black"
+    property bool splitEnabled: false
 
-    swipe.right: Label {
-        id: deleteLabel
-        text: qsTr("Delete")
-        color: "white"
-        verticalAlignment: Label.AlignVCenter
-        padding: 12
+    swipe.right: Row {
         height: parent.height
         anchors.right: parent.right
+        spacing: 0
 
-        SwipeDelegate.onClicked: {
-            delegate.ListView.view.model.remove(index)
-            swipe.close()
+        Label {
+            id: deleteLabel
+            text: qsTr("Delete")
+            color: "white"
+            verticalAlignment: Label.AlignVCenter
+            padding: 12
+            height: parent.height
+
+            SwipeDelegate.onClicked: {
+                delegate.ListView.view.model.remove(index)
+            }
+
+            background: Rectangle {
+                color: deleteLabel.SwipeDelegate.pressed ? Qt.darker("tomato", 1.1) : "tomato"
+            }
         }
 
-        background: Rectangle {
-            color: deleteLabel.SwipeDelegate.pressed ? Qt.darker("tomato", 1.1) : "tomato"
+        Label {
+            id: splitLabel
+            text: qsTr("Split")
+            color: "white"
+            verticalAlignment: Label.AlignVCenter
+            padding: 12
+            height: parent.height
+            visible: splitEnabled
+
+            SwipeDelegate.onClicked: {
+                selectDetails(model["id"], amount, date)
+                swipe.close()
+            }
+
+            background: Rectangle {
+                color: splitLabel.SwipeDelegate.pressed ? Qt.darker("grey", 1.1) : "grey"
+            }
         }
     }
 
@@ -43,71 +68,91 @@ ListViewDelegate {
                 height: delegate.height
                 verticalAlignment: Text.AlignVCenter
                 font.pointSize: delegate.fontSize
-                text: Date.fromLocaleString(Qt.locale(), model["date"], "yyyy-MM-dd").toLocaleDateString(Qt.locale(), "ddd dd MMM yyyy")
+                text: Date.fromLocaleString(Qt.locale(), date, "yyyy-MM-dd").toLocaleDateString(Qt.locale(), "ddd dd MMM yyyy")
                 elide: Text.ElideRight
                 color: delegate.textColor
                 clip: true
             }
 
-            EditableText {
+            ModelEditableText {
                 id: transactionPayee
                 anchors.verticalCenter: parent.verticalCenter
                 width: 300
                 height: delegate.height
-                text: model["payee"]
+                text: payee
+                placeholderText: "payee"
                 color: delegate.textColor
                 font.pointSize: delegate.fontSize
-                onEditingFinished: model["payee"] = text
+                onEditingFinished: {
+                    payee = text
+                }
                 clip: true
             }
 
-            EditableText {
+            ModelEditableText {
                 id: transactionMemo
                 anchors.verticalCenter: parent.verticalCenter
                 width: 400
                 height: delegate.height
-                text: model["memo"]
+                text: memo
+                placeholderText: "memo"
                 color: delegate.textColor
                 font.pointSize: delegate.fontSize
-                onEditingFinished: model["memo"] = text
+                onEditingFinished: {
+                    memo = text
+                }
             }
 
-            EditableComboBox {
+            ModelEditableComboBox {
                 id: transactionCategory
                 anchors.verticalCenter: parent.verticalCenter
                 width: 300
                 height: delegate.height
-                comboModel: categoryModel
-                textRole: "category"
+                font { pointSize: delegate.fontSize }
                 color: delegate.textColor
-                fontSize: delegate.fontSize
-                initValue: model["category"]
-                onTextUpdated: model["category"] = currentText
+                editable: true
+
+                isCurrentItem: delegate.ListView.isCurrentItem
+                modelText: category
+                model: categoryModel
+                textRole: "category"
+                onActivated: {
+                    category = editText
+                    categoryModel.reload()
+                }
             }
 
-            EditableText {
+            ModelEditableText {
                 id: transactionAmount
                 anchors.verticalCenter: parent.verticalCenter
                 width: 130
                 height: delegate.height
-                text: Number(model["amount"]).toLocaleString(Qt.locale())
+                font { pointSize: delegate.fontSize }
                 color: delegate.textColor
-                font.pointSize: delegate.fontSize
+
+                text: Number(amount).toLocaleString(Qt.locale())
+                placeholderText: "amount"
                 validator: DoubleValidator { decimals: 2; notation: DoubleValidator.StandardNotation }
-                onEditingFinished: model["amount"] = Number.fromLocaleString(Qt.locale(), text)
+                onEditingFinished: {
+                    amount = Number.fromLocaleString(Qt.locale(), text)
+                }
             }
 
-            EditableComboBox {
+            ModelEditableComboBox {
                 id: transactionStatus
                 anchors.verticalCenter: parent.verticalCenter
                 width: 130
                 height: delegate.height
-                comboModel: statusModel
-                textRole: "text"
+                font { pointSize: delegate.fontSize }
                 color: delegate.textColor
-                fontSize: delegate.fontSize
-                initValue: model["status"]
-                onTextUpdated: model["status"] = currentText
+
+                isCurrentItem: delegate.ListView.isCurrentItem
+                modelText: status
+                model: statusModel
+                textRole: "text"
+                onActivated: {
+                    status = editText
+                }
             }
 
             Row
@@ -118,13 +163,9 @@ ListViewDelegate {
                 layoutDirection: Qt.RightToLeft
                 spacing: 10
 
-                Image {
-                    id: arrow
-                    source: "../images/arrow.png"
-                    width: height
-                    height: delegate.height/2
+                Loader {
                     anchors.verticalCenter: parent.verticalCenter
-                    opacity: model["is_split"] === "1" ? 1.0 : 0.0
+                    sourceComponent: arrowComponent
                 }
 
                 Text {
@@ -136,7 +177,42 @@ ListViewDelegate {
                     text: "%1 %2".arg(Number(model["balance"]).toLocaleString(Qt.locale())).arg(delegate.unit)
                     color: delegate.textColor
                     clip: true
+                    visible: model["balance"] !== undefined
                 }
+            }
+        }
+    }
+
+    Component {
+        id: arrowComponent
+
+        Item {
+            id: item
+            width: arrow.width
+            height: arrow.height
+
+            Image {
+                id: arrow
+                source: "../images/arrow.png"
+                width: height
+                height: delegate.height/2
+                anchors.verticalCenter: parent.verticalCenter
+                opacity: is_split === "1" ? 1.0 : 0.0
+
+                MouseArea {
+                    id: arrowMouseArea
+                    anchors.fill: parent
+                    onClicked: selectDetails(model["id"], amount, date)
+                }
+            }
+
+            Colorize {
+                anchors.fill: arrow
+                source: arrow
+                hue: 0.0
+                saturation: 0.5
+                lightness: 1.0
+                visible: arrowMouseArea.pressed
             }
         }
     }

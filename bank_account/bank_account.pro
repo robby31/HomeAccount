@@ -18,7 +18,9 @@ RESOURCES += \
     data.qrc
 
 include (../qif/qif.pri)
-include (../../QmlApplication/QmlApplication.prf)
+
+INCLUDEPATH += $$(MYLIBRARY)/$$QT_VERSION/include/QmlApplication
+LIBS += -L$$(MYLIBRARY)/$$QT_VERSION -l$$qtLibraryTarget(QmlApplication)
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH += /Users/doudou/workspaceQT/qmlmodulesplugins
@@ -38,4 +40,5 @@ DISTFILES += \
     app.iconset/icon_128x128.png \
     app.iconset/icon_256x256.png \
     app.iconset/icon_512x512.png \
-    app.iconset/icon.png
+    app.iconset/icon.png \
+    ModelEditableText.qml

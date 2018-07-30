@@ -20,5 +20,6 @@
         <file>AccountsCategories.qml</file>
         <file>TransactionsListView.qml</file>
         <file>TransactionsDelegate.qml</file>
+        <file>SplitTransactionListView.qml</file>
     </qresource>
 </RCC>

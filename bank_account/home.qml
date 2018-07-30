@@ -97,7 +97,7 @@ Page {
                 delegate: RecentFilesDelegate { }
 
                 function selectFile(fileUrl) {
-                    loadDatabase(fileUrl)
+                    _app.databaseName = fileUrl.replace(/^(file:\/{2})/,"")
                 }
             }
         }
@@ -106,6 +106,6 @@ Page {
     FileDialog {
         id: openDialog
         nameFilters: [ "Bank account (*.sql)" ]
-        onAccepted: loadDatabase(fileUrl)
+        onAccepted: _app.databaseName = fileUrl.toString().replace(/^(file:\/{2})/,"")
     }
 }
