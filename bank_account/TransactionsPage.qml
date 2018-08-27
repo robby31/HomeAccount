@@ -53,9 +53,9 @@ Page {
 
     ListModel {
         id: statusModel
-        ListElement { text: "" }
-        ListElement { text: "reconciled" }
-        ListElement { text: "cleared" }
+        ListElement { value: "" }
+        ListElement { value: "reconciled" }
+        ListElement { value: "cleared" }
     }
 
     SqlListModel {

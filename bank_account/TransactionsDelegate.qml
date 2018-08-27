@@ -113,13 +113,16 @@ ListViewDelegate {
                 editable: true
 
                 isCurrentItem: delegate.ListView.isCurrentItem
+                placeholderText: "<no category>"
                 modelText: category
                 model: categoryModel
                 textRole: "category"
-                onActivated: {
-                    category = editText
+
+                onUpdateModelText: {
+                    category = text
                     categoryModel.reload()
                 }
+
             }
 
             ModelEditableText {
@@ -147,11 +150,13 @@ ListViewDelegate {
                 color: delegate.textColor
 
                 isCurrentItem: delegate.ListView.isCurrentItem
+                placeholderText: "<no status>"
                 modelText: status
                 model: statusModel
-                textRole: "text"
-                onActivated: {
-                    status = editText
+                textRole: "value"
+
+                onUpdateModelText: {
+                    status = text
                 }
             }
 
