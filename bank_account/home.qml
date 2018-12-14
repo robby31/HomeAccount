@@ -35,7 +35,7 @@ Page {
             spacing: 30
             Layout.preferredWidth: 200
             Layout.preferredHeight: newButton.height+openButton.height+spacing
-            anchors { verticalCenter: parent.verticalCenter }
+            Layout.alignment: Qt.AlignVCenter
 
             MyButton {
                 id: newButton
@@ -70,7 +70,6 @@ Page {
         {
             id: column2
             Layout.fillWidth: true
-            anchors { top: parent.top; bottom: parent.bottom; topMargin: 10; bottomMargin: 10 }
             spacing: 10
 
             Text {

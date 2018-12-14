@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.1
 import QtCharts 2.0
 import MyComponents 1.0
 
-ColumnLayout {
+Item {
     SqlListModel {
         id: yearModel
         connectionName: "ACCOUNTS"
@@ -48,150 +48,154 @@ ColumnLayout {
         }
     }
 
-    Row {
-        ComboBox {
-            id: comboYear
+    ColumnLayout {
+        anchors.fill: parent
 
-            height: 30
-            model: yearModel
-            textRole: "year"
+        Row {
+            ComboBox {
+                id: comboYear
 
-            delegate: ItemDelegate {
-                width: comboYear.width
-                height: comboYear.height
-                contentItem: Text {
-                    text: year
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
+                height: 30
+                model: yearModel
+                textRole: "year"
+
+                delegate: ItemDelegate {
+                    width: comboYear.width
+                    height: comboYear.height
+                    contentItem: Text {
+                        text: year
+                        elide: Text.ElideRight
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    highlighted: comboYear.highlightedIndex == index
                 }
 
-                highlighted: comboYear.highlightedIndex == index
-            }
+                indicator: Canvas {
+                    id: canvas
+                    x: comboYear.width - width - comboYear.rightPadding
+                    y: comboYear.topPadding + (comboYear.availableHeight - height) / 2
+                    width: 12
+                    height: 8
+                    contextType: "2d"
 
-            indicator: Canvas {
-                id: canvas
-                x: comboYear.width - width - comboYear.rightPadding
-                y: comboYear.topPadding + (comboYear.availableHeight - height) / 2
-                width: 12
-                height: 8
-                contextType: "2d"
+                    Connections {
+                        target: comboYear
+                        onPressedChanged: canvas.requestPaint()
+                    }
 
-                Connections {
-                    target: comboYear
-                    onPressedChanged: canvas.requestPaint()
+                    onPaint: {
+                        context.reset();
+                        context.moveTo(0, 0);
+                        context.lineTo(width, 0);
+                        context.lineTo(width / 2, height);
+                        context.closePath();
+                        //                    context.fillStyle = comboYear.pressed ? "#17a81a" : "#21be2b";
+                        context.fill();
+                    }
                 }
 
-                onPaint: {
-                    context.reset();
-                    context.moveTo(0, 0);
-                    context.lineTo(width, 0);
-                    context.lineTo(width / 2, height);
-                    context.closePath();
-//                    context.fillStyle = comboYear.pressed ? "#17a81a" : "#21be2b";
-                    context.fill();
+                onModelChanged: {
+                    // initialize currentIndex with current year or last one
+                    var date = new Date()
+                    var index = find(date.getFullYear())
+                    if (index===-1)
+                        index = model.rowCount-1
+                    currentIndex = index
                 }
+
+                onCurrentTextChanged: updateSqlModelQuery()
             }
 
-            onModelChanged: {
-                // initialize currentIndex with current year or last one
-                var date = new Date()
-                var index = find(date.getFullYear())
-                if (index===-1)
-                    index = model.rowCount-1
-                currentIndex = index
+            ComboBox {
+                id: comboAccount
+
+                height: 30
+                model: accountsModel
+                textRole: "name"
+
+                delegate: ItemDelegate {
+                    width: comboAccount.width
+                    height: comboAccount.height
+                    contentItem: Text {
+                        text: name
+                        elide: Text.ElideRight
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    highlighted: comboAccount.highlightedIndex == index
+                }
+
+                indicator: Canvas {
+                    id: comboAccountCanvas
+                    x: comboAccount.width - width - comboAccount.rightPadding
+                    y: comboAccount.topPadding + (comboAccount.availableHeight - height) / 2
+                    width: 12
+                    height: 8
+                    contextType: "2d"
+
+                    Connections {
+                        target: comboAccount
+                        onPressedChanged: comboAccountCanvas.requestPaint()
+                    }
+
+                    onPaint: {
+                        context.reset();
+                        context.moveTo(0, 0);
+                        context.lineTo(width, 0);
+                        context.lineTo(width / 2, height);
+                        context.closePath();
+                        //                    context.fillStyle = comboYear.pressed ? "#17a81a" : "#21be2b";
+                        context.fill();
+                    }
+                }
+
+                onModelChanged: currentIndex = 0
+
+                onCurrentTextChanged: updateSqlModelQuery()
             }
 
-            onCurrentTextChanged: updateSqlModelQuery()
+            Button {
+                height: 30
+                text: "Filter"
+                onClicked: filterDialog.isVisible = true
+            }
         }
 
-        ComboBox {
-            id: comboAccount
+        ChartView {
+            id: chartView
 
-            height: 30
-            model: accountsModel
-            textRole: "name"
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            delegate: ItemDelegate {
-                width: comboAccount.width
-                height: comboAccount.height
-                contentItem: Text {
-                    text: name
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
+            title: "Categories (Année %1)".arg(comboYear.currentText)
+            antialiasing: true
+
+            legend { alignment: Qt.AlignBottom }
+
+
+            HorizontalBarSeries {
+                id: mySeries
+
+                labelsVisible: true
+
+                VSqlBarModelMapper {
+                    id: mapper
+                    series: mySeries
+                    connectionName: "ACCOUNTS"
+                    roleCategory: "maincategory"
+                    roleValue: ["balance"]
+                    firstBarSetColumn: 2
+                    lastBarSetColumn: 2
+                    firstRow: 0
+                    rowCount: 20
+
+                    Component.onCompleted: {
+                        model.addColumnToFilter("maincategory")
+                    }
                 }
 
-                highlighted: comboAccount.highlightedIndex == index
             }
-
-            indicator: Canvas {
-                id: comboAccountCanvas
-                x: comboAccount.width - width - comboAccount.rightPadding
-                y: comboAccount.topPadding + (comboAccount.availableHeight - height) / 2
-                width: 12
-                height: 8
-                contextType: "2d"
-
-                Connections {
-                    target: comboAccount
-                    onPressedChanged: comboAccountCanvas.requestPaint()
-                }
-
-                onPaint: {
-                    context.reset();
-                    context.moveTo(0, 0);
-                    context.lineTo(width, 0);
-                    context.lineTo(width / 2, height);
-                    context.closePath();
-//                    context.fillStyle = comboYear.pressed ? "#17a81a" : "#21be2b";
-                    context.fill();
-                }
-            }
-
-            onModelChanged: currentIndex = 0
-
-            onCurrentTextChanged: updateSqlModelQuery()
-        }
-
-        Button {
-            height: 30
-            text: "Filter"
-            onClicked: filterDialog.isVisible = true
-        }
-    }
-
-    ChartView {
-        id: chartView
-
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-
-        title: "Categories (Année %1)".arg(comboYear.currentText)
-        antialiasing: true
-
-        legend { alignment: Qt.AlignBottom }
-
-
-        HorizontalBarSeries {
-            id: mySeries
-
-            labelsVisible: true
-
-            VSqlBarModelMapper {
-                id: mapper
-                series: mySeries
-                connectionName: "ACCOUNTS"
-                roleCategory: "maincategory"
-                roleValue: ["balance"]
-                firstBarSetColumn: 2
-                lastBarSetColumn: 2
-                firstRow: 0
-                rowCount: 20
-
-                Component.onCompleted: {
-                    model.addColumnToFilter("maincategory")
-                }
-            }
-
         }
     }
 

@@ -12,7 +12,7 @@ ColumnLayout {
     Row {
         Layout.preferredWidth: parent.width - 20
         Layout.preferredHeight: 40
-        anchors.horizontalCenter: parent.horizontalCenter
+        Layout.alignment: Qt.AlignHCenter
 
         Button {
             anchors.verticalCenter: parent.verticalCenter
