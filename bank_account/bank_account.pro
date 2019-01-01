@@ -1,18 +1,21 @@
-QT += qml quick widgets sql webview
+QT += qml quick widgets sql webview charts
 
 TARGET = bank_account
 
+CONFIG += c++14
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
     myapplication.cpp \
     accountscontroller.cpp \
-    accountsworker.cpp
+    accountsworker.cpp \
+    transactionsmodel.cpp
 
 HEADERS += \
     myapplication.h \
     accountscontroller.h \
-    accountsworker.h
+    accountsworker.h \
+    transactionsmodel.h
 
 RESOURCES += \
     data.qrc
