@@ -17,11 +17,11 @@ void MyFile::setCodecName(const QString &name)
 QString MyFile::readLine(qint64 maxSize)
 {
     QString res;
-    while (!m_textstream.atEnd() && (maxSize==0 or res.size()<maxSize))
+    while (!m_textstream.atEnd() && (maxSize==0 || res.size()<maxSize))
     {
         QString c = m_textstream.read(1);
         res.append(c);
-        if (c.contains("\n") or c.contains("\r"))
+        if (c.contains("\n") || c.contains("\r"))
             break;
     }
 

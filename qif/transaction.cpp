@@ -57,17 +57,17 @@ Transaction::Transaction(QStringList data, QObject *parent) :
             }
             else if (tmp[0] == 'C')
             {
-                if (tmp == "C*" or  tmp == "Cc")
+                if (tmp == "C*" ||  tmp == "Cc")
                 {
                     m_valid = true;
                     m_status = "cleared";
                 }
-                else if (tmp == "CX" or tmp == "CR")
+                else if (tmp == "CX" || tmp == "CR")
                 {
                     m_valid = true;
                     m_status = "reconciled";
                 }
-                else if (tmp == "C" or tmp == "C ")
+                else if (tmp == "C" || tmp == "C ")
                 {
                     m_valid = true;
                     m_status = "not cleared";
