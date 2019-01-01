@@ -1,6 +1,7 @@
 import QtQuick 2.3
 import QtQuick.Controls 2.1
 import MyComponents 1.0
+import SqlModel 1.0
 
 Page {
     id: accountsPage
@@ -29,7 +30,7 @@ Page {
         accountsModel.reload()
     }
 
-    SqlListModel {
+    SqlQueryModel {
         id: accountsModel
         connectionName: "ACCOUNTS"
         query: "SELECT id, name, number, (SELECT SUM(transactions.amount) FROM transactions WHERE transactions.account_id=accounts.id and split_id=0) AS amount FROM accounts"
@@ -41,13 +42,15 @@ Page {
 
         AccountsListView { model: accountsModel }
 
-        AccountsCategories { }
+        AccountsCategory { }
 
-        AccountsBarSeries { model: accountsModel }
+//        AccountsCategories { }
 
-        AccountsAreaSeries { }
+//        AccountsBarSeries { model: accountsModel }
 
-        RevenusDepensesGraph { }
+//        AccountsAreaSeries { }
+
+//        RevenusDepensesGraph { }
     }
 
     PageIndicator {
