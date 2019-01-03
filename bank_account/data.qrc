@@ -1,26 +1,26 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
         <file>images/document-open.png</file>
-        <file>AccountsPage.qml</file>
-        <file>TransactionsPage.qml</file>
         <file>images/exit.png</file>
-        <file>AccountsDelegate.qml</file>
-        <file>AccountCreationArea.qml</file>
-        <file>TransactionCreationArea.qml</file>
-        <file>home.qml</file>
         <file>images/arrow.png</file>
-        <file>AccountCreationDialog.qml</file>
-        <file>AccountsListView.qml</file>
-        <file>AccountsBarSeries.qml</file>
-        <file>AccountsAreaSeries.qml</file>
-        <file>RecentFilesDelegate.qml</file>
         <file>images/logo.png</file>
-        <file>RevenusDepensesGraph.qml</file>
-        <file>AccountsCategories.qml</file>
-        <file>TransactionsListView.qml</file>
-        <file>TransactionsDelegate.qml</file>
-        <file>SplitTransactionListView.qml</file>
-        <file>AccountsCategory.qml</file>
+        <file>qml/AccountsPage.qml</file>
+        <file>qml/AccountsCategory.qml</file>
+        <file>qml/AccountsCategories.qml</file>
+        <file>qml/AccountsListView.qml</file>
+        <file>qml/home.qml</file>
+        <file>qml/TransactionsDelegate.qml</file>
+        <file>qml/TransactionsPage.qml</file>
+        <file>qml/TransactionsListView.qml</file>
+        <file>qml/main.qml</file>
+        <file>qml/SplitTransactionListView.qml</file>
+        <file>qml/TransactionCreationArea.qml</file>
+        <file>qml/AccountCreationArea.qml</file>
+        <file>qml/AccountCreationDialog.qml</file>
+        <file>qml/AccountsDelegate.qml</file>
+        <file>qml/RecentFilesDelegate.qml</file>
+        <file>qml/RevenusDepensesGraph.qml</file>
+        <file>qml/AccountsAreaSeries.qml</file>
+        <file>qml/AccountsBarSeries.qml</file>
     </qresource>
 </RCC>

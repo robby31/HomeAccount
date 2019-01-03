@@ -10,14 +10,14 @@ Item {
     SqlQueryModel {
         id: categoryModel
         connectionName: "ACCOUNTS"
-        query: "SELECT DISTINCT category from transactions ORDER BY category"
+        query: "SELECT DISTINCT category from transactions WHERE category is not null and category != '' ORDER BY category"
     }
 
     TransactionsModel {
         id: amountModel
         connectionName: "ACCOUNTS"
 //        query: "SELECT date, amount FROM transactions WHERE category='%1'".arg(comboCategory.currentText)
-        query: "SELECT strftime('%Y', date) AS year, sum(amount) AS total FROM transactions WHERE category='%1' GROUP BY year".arg(comboCategory.currentText)
+        query: "SELECT CAST(strftime('%Y', date) AS INT) AS year, sum(amount) AS total FROM transactions WHERE category='%1' GROUP BY year".arg(comboCategory.currentText)
     }
 
     ColumnLayout {

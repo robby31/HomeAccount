@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     MyApplication c_application(argc, argv);
 
     // load the qml file describing the application
-    c_application.loadMainQml(QUrl("qrc:/main.qml"));
+    c_application.loadMainQml(QUrl("qrc:/qml/main.qml"));
 
     return c_application.exec();
 }

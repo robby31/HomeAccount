@@ -17,7 +17,6 @@ QVariant TransactionsModel::data(const QModelIndex &item, int role) const
             if (field.tableName() == "transactions" && field.name() == "date")
             {
                 QDateTime date = QDateTime::fromString(field.value().toString(), "yyyy-MM-dd");
-                qWarning() << field << date;
                 if (date.isValid())
                     return date;
             }
