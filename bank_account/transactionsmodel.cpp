@@ -20,6 +20,12 @@ QVariant TransactionsModel::data(const QModelIndex &item, int role) const
                 if (date.isValid())
                     return date;
             }
+            else if (field.name() == "month")
+            {
+                QDateTime date = QDateTime::fromString(field.value().toString(), "yyyy-MM-dd");
+                if (date.isValid())
+                    return date;
+            }
         }
     }
 
