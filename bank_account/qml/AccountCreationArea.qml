@@ -2,12 +2,14 @@ import QtQuick 2.5
 import QtQuick.Controls 2.1
 
 Item {
-    id: item1
     width: column.width*1.2
     height: column.height*1.2
 
     property alias name: accountName.text
     property alias number: accountNumber.text
+
+    signal create_account(string name, string number)
+    signal cancel()
 
     Column {
         id: column
@@ -51,6 +53,22 @@ Item {
                 height: 30
                 anchors.verticalCenter: parent.verticalCenter
                 placeholderText: "account number"
+            }
+        }
+
+        Row {
+            spacing: 10
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Button {
+                text: "Ok"
+                enabled: name !== "" && number !== ""
+                onClicked: create_account(name, number)
+            }
+
+            Button {
+                text: "Cancel"
+                onClicked: cancel()
             }
         }
     }

@@ -49,29 +49,6 @@ void AccountsWorker::importQif(const int &idAccount, const QString &fileUrl)
     }
 }
 
-void AccountsWorker::create_account(const QString &name, const QString &number)
-{
-    emit processStarted();
-
-    QSqlQuery query(GET_DATABASE("ACCOUNTS"));
-
-    query.prepare("INSERT INTO accounts (name, number) "
-                  "VALUES (:name, :number)");
-
-    query.bindValue(":name", name);
-    query.bindValue(":number", number);
-
-    if (query.exec())
-    {
-        emit processOver(QString("Account %1 (%2) created.").arg(name).arg(number));
-        emit accountsUpdatedSignal();
-    }
-    else
-    {
-        emit errorDuringProcess(query.lastError().text());
-    }
-}
-
 void AccountsWorker::create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount)
 {
     emit processStarted();

@@ -12,10 +12,8 @@ MyApplication::MyApplication(int &argc, char **argv):
     addWorker(&m_accountsController, m_accountsWorker);
 
     connect(&m_accountsController, SIGNAL(importQifSignal(int,QString)), m_accountsWorker, SLOT(importQif(int,QString)));
-    connect(&m_accountsController, SIGNAL(createAccountSignal(QString, QString)), m_accountsWorker, SLOT(create_account(QString,QString)));
     connect(&m_accountsController, SIGNAL(createTransactionSignal(int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));    
     connect(&m_accountsController, SIGNAL(createSplitTransactionSignal(int,int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_split_transaction(int,int,QDateTime,QString,QString,QString)));
-    connect(m_accountsWorker, SIGNAL(accountsUpdatedSignal()), &m_accountsController, SIGNAL(accountsUpdatedSignal()));
     connect(m_accountsWorker, SIGNAL(transactionsUpdatedSignal()), &m_accountsController, SIGNAL(transactionsUpdatedSignal()));
 
     connect(this, SIGNAL(mainQmlLoaded(QObject*)), this, SLOT(mainQmlLoaded(QObject*)));
@@ -33,11 +31,9 @@ void MyApplication::mainQmlLoaded(QObject *obj)
     connect(this, SIGNAL(databaseOpened(QString)), this, SLOT(databaseLoaded(QString)));
 
     connect(obj, SIGNAL(importQif(int,QString)), &m_accountsController, SLOT(importQif(int,QString)));
-    connect(obj, SIGNAL(create_account(QString, QString)), &m_accountsController, SLOT(create_account(QString, QString)));
     connect(obj, SIGNAL(create_new_transaction(int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
     connect(obj, SIGNAL(create_new_split_transaction(int,int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_split_transaction(int,int,QDateTime,QString,QString,QString)));
 
-    connect(&m_accountsController, SIGNAL(accountsUpdatedSignal()), obj, SLOT(reloadDatabase()));
     connect(&m_accountsController, SIGNAL(transactionsUpdatedSignal()), obj, SLOT(reloadDatabase()));
 }
 

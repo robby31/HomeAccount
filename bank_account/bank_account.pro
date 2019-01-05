@@ -9,13 +9,15 @@ SOURCES += main.cpp \
     myapplication.cpp \
     accountscontroller.cpp \
     accountsworker.cpp \
-    transactionsmodel.cpp
+    transactionsmodel.cpp \
+    accountsmodel.cpp
 
 HEADERS += \
     myapplication.h \
     accountscontroller.h \
     accountsworker.h \
-    transactionsmodel.h
+    transactionsmodel.h \
+    accountsmodel.h
 
 RESOURCES += \
     data.qrc

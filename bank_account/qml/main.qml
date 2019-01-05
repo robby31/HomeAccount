@@ -13,7 +13,6 @@ MyApplication {
     property var pageLoaded
 
     signal importQif(int idAccount, string filename)
-    signal create_account(string name, string number)
     signal create_new_transaction(int id_account, date date, string payee, string memo, string amount)
     signal create_new_split_transaction(int id_account, int id_transaction, date date, string payee, string memo, string amount)
 

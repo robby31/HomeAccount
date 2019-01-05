@@ -40,13 +40,6 @@ void AccountsController::importQif(const int &idAccount, const QString &fileUrl)
         emit importQifSignal(idAccount, fileUrl);
 }
 
-
-void AccountsController::create_account(const QString &name, const QString &number)
-{
-    if (setActivity("Create Account"))
-        emit createAccountSignal(name, number);
-}
-
 void AccountsController::create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount)
 {
     if (setActivity("Create Transaction"))

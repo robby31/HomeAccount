@@ -26,13 +26,8 @@ Page {
         }
     }
 
-    function reloadDatabase() {
-        accountsModel.reload()
-    }
-
-    SqlQueryModel {
+    AccountsModel {
         id: accountsModel
-        connectionName: "ACCOUNTS"
         query: "SELECT id, name, number, (SELECT SUM(transactions.amount) FROM transactions WHERE transactions.account_id=accounts.id and split_id=0) AS amount FROM accounts"
     }
 

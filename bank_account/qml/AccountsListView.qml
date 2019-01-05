@@ -18,7 +18,7 @@ ColumnLayout {
             anchors.verticalCenter: parent.verticalCenter
             height: 20
             text: "+ New Account"
-            onClicked: accountcreationDialog.open()
+            onClicked: drawer.open()
         }
     }
 
@@ -40,8 +40,23 @@ ColumnLayout {
         onSelectAccount: selectAccountforTransactions(id, name)
     }
 
-    AccountCreationDialog {
-        id: accountcreationDialog
-    }
+    Drawer {
+        id: drawer
+        width: parent.width
+        height: creationArea.height + 20
+        edge: Qt.BottomEdge
 
+        AccountCreationArea {
+            id: creationArea
+
+            anchors { verticalCenter: parent.verticalCenter ; horizontalCenter: parent.horizontalCenter }
+
+            onCreate_account: {
+                listAccounts.model.createAccount(name, number)
+                drawer.close()
+            }
+
+            onCancel: drawer.close()
+        }
+    }
 }

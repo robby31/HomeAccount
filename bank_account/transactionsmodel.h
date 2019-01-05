@@ -10,7 +10,7 @@ class TransactionsModel : public SqlQueryModel
 public:
     explicit TransactionsModel(QObject *parent = Q_NULLPTR);
 
-    virtual QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
 };
 

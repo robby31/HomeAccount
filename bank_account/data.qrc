@@ -16,7 +16,6 @@
         <file>qml/SplitTransactionListView.qml</file>
         <file>qml/TransactionCreationArea.qml</file>
         <file>qml/AccountCreationArea.qml</file>
-        <file>qml/AccountCreationDialog.qml</file>
         <file>qml/AccountsDelegate.qml</file>
         <file>qml/RecentFilesDelegate.qml</file>
         <file>qml/RevenusDepensesGraph.qml</file>
