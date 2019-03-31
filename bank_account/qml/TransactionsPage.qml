@@ -1,6 +1,5 @@
 import QtQuick 2.5
 import QtQuick.Controls 2.1
-import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import MyComponents 1.0
 
@@ -19,17 +18,6 @@ Page {
     ListModel {
         id: transactionsPageActions
 
-        ListElement {
-            name: "Import QIF"
-            description: "import QIF file"
-            icon: "qrc:///images/document-open.png"
-        }
-
-        ListElement {
-            name: "Close"
-            description: "close transactions"
-            icon: "qrc:///images/exit.png"
-        }
     }
 
     function reloadDatabase() {
@@ -37,18 +25,8 @@ Page {
         categoryModel.reload()
     }
 
-    function importQIF() {
-        if (accountId >= 0) {
-            qifFileDialog.idAccount = accountId
-            qifFileDialog.open()
-        }
-    }
-
     onActionClicked: {
-        if (name == "Close")
-            closeTransactions()
-        else if (name == "Import QIF")
-            importQIF()
+
     }
 
     ListModel {
@@ -58,7 +36,7 @@ Page {
         ListElement { value: "cleared" }
     }
 
-    SqlListModel {
+    SqlQueryModel {
         id: categoryModel
         connectionName: "ACCOUNTS"
         query: "SELECT DISTINCT category FROM transactions ORDER BY category"
@@ -75,13 +53,5 @@ Page {
         anchors.margins: 10
 
         Component.onCompleted: stack.push("TransactionsListView.qml", {"accountId": accountId, "unit": transactionsPage.unit})
-    }
-
-    FileDialog {
-        id: qifFileDialog
-        nameFilters: [ "QIF file (*.qif)" ]
-        selectExisting: true
-        property int idAccount: -1
-        onAccepted: importQif(idAccount, fileUrl)
     }
 }

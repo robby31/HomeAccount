@@ -1,7 +1,9 @@
 import QtQuick 2.5
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.1
+import QtQuick.Dialogs 1.2
 import MyComponents 1.0
+import SqlModel 1.0
 
 ColumnLayout {
     id: mainLayout
@@ -16,29 +18,25 @@ ColumnLayout {
         if (visible == true)
         {
             // update model if is_split changed
-            transactionsModel.reload()
+            transactionsModel.select()
         }
     }
 
-    SqlListModel {
+    TransactionsModel {
         id: transactionsModel
-        connectionName: "ACCOUNTS"
-        onRowsRemoved: balanceModel.reload()
+        onRowCountChanged: balanceModel.reload()
+        onDataChanged: balanceModel.reload()
     }
 
-    SqlListModel {
+    SqlQueryModel {
         id: balanceModel
         connectionName: "ACCOUNTS"
         query: "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
         onModelReset: {
-            if (balanceModel.rowCount >= 1) {
-                var value = balanceModel.get(0, "total")
-                balanceText.text = "%1 %2".arg(Number(value).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
-                if (value < 0)
-                    balanceText.color = "red"
-                else
-                    balanceText.color = "blue"
-            }
+            if (balanceModel.rowCount >= 1)
+                balanceText.value = balanceModel.get(0).total
+            else
+                balanceText.value = 0.0
         }
     }
 
@@ -47,15 +45,22 @@ ColumnLayout {
         if (listview.model)
         {
             if (accountId >= 0) {
-                listview.model.tablename = "transactions"
                 if (textFilter.text)
                 {
-                    listview.model.query = "select * from transactions where account_id=%1 and split_id=0 and %2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(textFilter.text)
+                    listview.model.query = "select * from transactions"
+                    listview.model.filter = "account_id=%1 and split_id=0 and %2".arg(accountId).arg(textFilter.text)
+                    listview.model.orderClause = "ORDER BY date DESC, abs(amount) DESC"
+                    listview.model.select()
+
                     balanceModel.query = "SELECT sum(amount) AS total from (%1)".arg(listview.model.query)
                 }
                 else
                 {
-                    listview.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions where account_id=%1 and split_id=0 ORDER BY date DESC, abs(amount) DESC".arg(accountId)
+                    listview.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions".arg(accountId)
+                    listview.model.filter = "account_id=%1 and split_id=0".arg(accountId)
+                    listview.model.orderClause = "ORDER BY date DESC, abs(amount) DESC"
+                    listview.model.select()
+
                     balanceModel.query = "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
                 }
             }
@@ -63,7 +68,7 @@ ColumnLayout {
     }
 
     function reload() {
-        transactionsModel.reload()
+        transactionsModel.select()
         balanceModel.reload()
     }
 
@@ -110,6 +115,10 @@ ColumnLayout {
                 anchors.verticalCenter: parent.verticalCenter
                 width: contentWidth
                 clip: true
+
+                property double value: 0.0
+                text: "%1 %2".arg(Number(value).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
+                color: value < 0 ? "red" : "blue"
             }
 
             Button {
@@ -123,7 +132,12 @@ ColumnLayout {
                 anchors.verticalCenter: parent.verticalCenter
                 height: 30
                 text: "Import QIF"
-                onClicked: importQIF()
+                onClicked: {
+                    if (accountId >= 0) {
+                        qifFileDialog.idAccount = accountId
+                        qifFileDialog.open()
+                    }
+                }
             }
         }
 
@@ -165,6 +179,14 @@ ColumnLayout {
                     create_new_transaction(accountId, date, payee, memo, amount)
             }
         }
+    }
+
+    FileDialog {
+        id: qifFileDialog
+        nameFilters: [ "QIF file (*.qif)" ]
+        selectExisting: true
+        property int idAccount: -1
+        onAccepted: transactionsModel.importQif(idAccount, fileUrl)
     }
 }
 

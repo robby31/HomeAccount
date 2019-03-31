@@ -15,16 +15,26 @@ Item {
 
     TransactionsModel {
         id: amountModel
-        connectionName: "ACCOUNTS"
         query: setQuery(typeGraph.currentText, comboCategory.currentText)
 
         function setQuery(type, category) {
-            if (type === "Year")
-                amountModel.query = "SELECT CAST(strftime('%Y', date) AS INT) AS year, sum(amount) AS total FROM transactions WHERE category='%1' GROUP BY year".arg(category)
-            else if (type === "Month")
-                amountModel.query = "SELECT date(strftime('%Y-%m-%d', date), 'start of month') AS month, sum(amount) AS total FROM transactions WHERE category='%1' GROUP BY month".arg(category)
-            else
-                amountModel.query = "SELECT date, amount FROM transactions WHERE category='%1'".arg(category)
+            if (type === "Year") {
+                amountModel.query = "SELECT CAST(strftime('%Y', date) AS INT) AS year, sum(amount) AS total FROM transactions"
+                amountModel.orderClause = "WHERE category='%1'".arg(category)
+                amountModel.group = "year";
+            }
+            else if (type === "Month") {
+                amountModel.query = "SELECT date(strftime('%Y-%m-%d', date), 'start of month') AS month, sum(amount) AS total FROM transactions"
+                amountModel.orderClause = "WHERE category='%1'".arg(category)
+                amountModel.group = "month";
+            }
+            else {
+                amountModel.query = "SELECT date, amount FROM transactions"
+                amountModel.orderClause = "WHERE category='%1'".arg(category)
+                amountModel.group = ""
+            }
+
+            amountModel.select()
         }
     }
 

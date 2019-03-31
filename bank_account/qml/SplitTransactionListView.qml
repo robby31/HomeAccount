@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.1
 import MyComponents 1.0
+import SqlModel 1.0
 
 ColumnLayout {
     id: mainLayout
@@ -14,21 +15,25 @@ ColumnLayout {
     property double transactionAmount: -1
     property string unit: "€"
 
-    SqlListModel {
+    TransactionsModel {
         id: transactionsModel
-        connectionName: "ACCOUNTS"
         onDataChanged: totalModel.reload()
-        onRowsRemoved: {
+        onRowCountChanged: {
             _app.check_split_id(transactionId)
             totalModel.reload()
         }
     }
 
-    SqlListModel {
+    SqlQueryModel {
         id: totalModel
         connectionName: "ACCOUNTS"
         query: transactionsModel.query ? "SELECT SUM(amount) AS total FROM (%1)".arg(transactionsModel.query) : ""
-        onModelReset: total.text = "%1 %2".arg(Number(totalModel.get(0, "total")).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
+        onModelReset: {
+            if (totalModel.rowCount >= 1)
+                total.value = totalModel.get(0).total
+            else
+                total.value = 0.0
+        }
     }
 
     function updateTransactionsQuery()
@@ -36,11 +41,18 @@ ColumnLayout {
         if (listview.model)
         {
             if (accountId >= 0 && transactionId >= 0) {
-                listview.model.tablename = "transactions"
-                if (textFilter.text)
-                    listview.model.query = "select * from transactions where account_id=%1 and split_id=%3 and %2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(textFilter.text).arg(transactionId)
-                else
-                    listview.model.query = "select * from transactions where account_id=%1 and split_id=%2 ORDER BY date DESC, abs(amount) DESC".arg(accountId).arg(transactionId)
+                if (textFilter.text) {
+                    listview.model.query = "select * from transactions"
+                    listview.model.filter = "account_id=%1 and split_id=%3 and %2".arg(accountId).arg(textFilter.text).arg(transactionId)
+                    listview.model.orderClause = "ORDER BY date DESC, abs(amount) DESC"
+                }
+                else {
+                    listview.model.query = "select * from transactions"
+                    listview.model.filter = "account_id=%1 and split_id=%2".arg(accountId).arg(transactionId)
+                    listview.model.orderClause = "ORDER BY date DESC, abs(amount) DESC"
+                }
+
+                listview.model.select()
             }
         }
     }
@@ -109,6 +121,9 @@ ColumnLayout {
                 width: contentWidth
                 color: transactionAmountText.text !== text ? "red" : "green"
                 clip: true
+
+                property double value: 0.0
+                text: "%1 %2".arg(Number(value).toLocaleString(Qt.locale())).arg(transactionsPage.unit)
             }
 
             Button {
