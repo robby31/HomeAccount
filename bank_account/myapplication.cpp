@@ -11,7 +11,6 @@ MyApplication::MyApplication(int &argc, char **argv):
     m_accountsWorker = new AccountsWorker();
     addWorker(&m_accountsController, m_accountsWorker);
 
-    connect(&m_accountsController, SIGNAL(importQifSignal(int,QString)), m_accountsWorker, SLOT(importQif(int,QString)));
     connect(&m_accountsController, SIGNAL(createTransactionSignal(int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));    
     connect(&m_accountsController, SIGNAL(createSplitTransactionSignal(int,int,QDateTime,QString,QString,QString)), m_accountsWorker, SLOT(create_split_transaction(int,int,QDateTime,QString,QString,QString)));
     connect(m_accountsWorker, SIGNAL(transactionsUpdatedSignal()), &m_accountsController, SIGNAL(transactionsUpdatedSignal()));
@@ -30,7 +29,6 @@ void MyApplication::mainQmlLoaded(QObject *obj)
     setdatabaseConnectionName("ACCOUNTS");
     connect(this, SIGNAL(databaseOpened(QString)), this, SLOT(databaseLoaded(QString)));
 
-    connect(obj, SIGNAL(importQif(int,QString)), &m_accountsController, SLOT(importQif(int,QString)));
     connect(obj, SIGNAL(create_new_transaction(int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_transaction(int,QDateTime,QString,QString,QString)));
     connect(obj, SIGNAL(create_new_split_transaction(int,int,QDateTime,QString,QString,QString)), &m_accountsController, SLOT(create_split_transaction(int,int,QDateTime,QString,QString,QString)));
 

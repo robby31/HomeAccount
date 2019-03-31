@@ -34,12 +34,6 @@ bool AccountsController::initializeDatabase()
     return true;
 }
 
-void AccountsController::importQif(const int &idAccount, const QString &fileUrl)
-{
-    if (setActivity("Import QIF"))
-        emit importQifSignal(idAccount, fileUrl);
-}
-
 void AccountsController::create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount)
 {
     if (setActivity("Create Transaction"))

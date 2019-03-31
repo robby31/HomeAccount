@@ -21,7 +21,6 @@ signals:
     void transactionsUpdatedSignal();
 
 private slots:
-    void importQif(const int &idAccount, const QString &fileUrl);
     void create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount);
     void create_split_transaction(const int &idAccount, const int &idTransaction, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount);
 };
