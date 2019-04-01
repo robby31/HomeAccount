@@ -15,11 +15,6 @@ MyApplication {
     controller: accountsController
     srcPages: _app.databaseName === "" ? "home.qml" : "AccountsPage.qml"
 
-    function reloadDatabase() {
-        if (pageLoaded.reloadDatabase)
-            pageLoaded.reloadDatabase()
-    }
-
     function closeTransactions() {
         mainWindow.setPage(Qt.resolvedUrl("AccountsPage.qml"), {})
     }

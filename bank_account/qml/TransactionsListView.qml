@@ -19,12 +19,13 @@ ColumnLayout {
         {
             // update model if is_split changed
             transactionsModel.select()
-            console.log("transactionsmodel", transactionsModel.rowCount)
         }
     }
 
     TransactionsModel {
         id: transactionsModel
+        orderClause: "ORDER BY date DESC, abs(amount) DESC"
+
         onRowCountChanged: balanceModel.reload()
         onDataChanged: balanceModel.reload()
     }
@@ -50,7 +51,6 @@ ColumnLayout {
                 {
                     listview.model.query = "select * from transactions"
                     listview.model.filter = "account_id=%1 and split_id=0 and %2".arg(accountId).arg(textFilter.text)
-                    listview.model.orderClause = "ORDER BY date DESC, abs(amount) DESC"
                     listview.model.select()
 
                     balanceModel.query = "SELECT sum(amount) AS total from (%1)".arg(listview.model.query)
@@ -59,18 +59,12 @@ ColumnLayout {
                 {
                     listview.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions".arg(accountId)
                     listview.model.filter = "account_id=%1 and split_id=0".arg(accountId)
-                    listview.model.orderClause = "ORDER BY date DESC, abs(amount) DESC"
                     listview.model.select()
 
                     balanceModel.query = "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
                 }
             }
         }
-    }
-
-    function reload() {
-        transactionsModel.select()
-        balanceModel.reload()
     }
 
     RowLayout {

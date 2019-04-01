@@ -57,10 +57,6 @@ ColumnLayout {
         }
     }
 
-    function reload() {
-        updateTransactionsQuery()
-    }
-
     RowLayout {
         id: rowLayout
         spacing: 10

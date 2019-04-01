@@ -20,11 +20,6 @@ Page {
 
     }
 
-    function reloadDatabase() {
-        stack.currentItem.reload()
-        categoryModel.reload()
-    }
-
     onActionClicked: {
 
     }

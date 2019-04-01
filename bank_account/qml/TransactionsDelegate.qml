@@ -123,9 +123,8 @@ ListViewDelegate {
 
                 onUpdateModelText: {
                     category = text
-                    //categoryModel.reload()
+                    categoryModel.reload()
                 }
-
             }
 
             ModelEditableText {
