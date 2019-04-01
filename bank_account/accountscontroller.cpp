@@ -33,15 +33,3 @@ bool AccountsController::initializeDatabase()
 
     return true;
 }
-
-void AccountsController::create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount)
-{
-    if (setActivity("Create Transaction"))
-        emit createTransactionSignal(idAccount, date, payee, memo, amount);
-}
-
-void AccountsController::create_split_transaction(const int &idAccount, const int &idTransaction, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount)
-{
-    if (setActivity("Create Split Transaction"))
-        emit createSplitTransactionSignal(idAccount, idTransaction, date, payee, memo, amount);
-}

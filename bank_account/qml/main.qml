@@ -12,9 +12,6 @@ MyApplication {
 
     property var pageLoaded
 
-    signal create_new_transaction(int id_account, date date, string payee, string memo, string amount)
-    signal create_new_split_transaction(int id_account, int id_transaction, date date, string payee, string memo, string amount)
-
     controller: accountsController
     srcPages: _app.databaseName === "" ? "home.qml" : "AccountsPage.qml"
 

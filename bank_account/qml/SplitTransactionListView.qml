@@ -19,7 +19,7 @@ ColumnLayout {
         id: transactionsModel
         onDataChanged: totalModel.reload()
         onRowCountChanged: {
-            _app.check_split_id(transactionId)
+            check_split_id(transactionId)
             totalModel.reload()
         }
     }
@@ -171,7 +171,7 @@ ColumnLayout {
 
             onCreate_transaction: {
                 if (accountId >= 0)
-                    create_new_split_transaction(accountId, transactionId, date, payee, memo, amount)
+                    transactionsModel.create_split_transaction(accountId, transactionId, date, payee, memo, amount)
             }
         }
     }

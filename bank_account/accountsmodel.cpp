@@ -8,7 +8,7 @@ AccountsModel::AccountsModel(QObject *parent):
 
 void AccountsModel::createAccount(const QString &name, const QString &number)
 {
-    QSqlQuery tmpQuery(query());
+    QSqlQuery tmpQuery(database());
 
     tmpQuery.prepare("INSERT INTO accounts (name, number) "
                      "VALUES (:name, :number)");

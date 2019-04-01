@@ -12,7 +12,6 @@ public:
 
 public slots:
     void createAccount(const QString &name, const QString &number);
-
 };
 
 #endif // ACCOUNTSMODEL_H

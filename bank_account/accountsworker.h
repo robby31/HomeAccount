@@ -16,13 +16,6 @@ class AccountsWorker : public Worker
 
 public:
     explicit AccountsWorker(QObject *parent = Q_NULLPTR);
-
-signals:
-    void transactionsUpdatedSignal();
-
-private slots:
-    void create_transaction(const int &idAccount, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount);
-    void create_split_transaction(const int &idAccount, const int &idTransaction, const QDateTime &date, const QString &payee, const QString &memo, const QString &amount);
 };
 
 #endif // ACCOUNTSWORKER_H

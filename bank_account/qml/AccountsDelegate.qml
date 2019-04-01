@@ -23,8 +23,10 @@ ListViewDelegate {
             height: parent.height
 
             SwipeDelegate.onClicked: {
-                swipe.close()
-                delegate.ListView.view.model.remove(index)
+                if (!delegate.ListView.view.model.remove(index))
+                    swipe.close()
+                else
+                    delegate.ListView.view.model.select()
             }
 
             background: Rectangle {

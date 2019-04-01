@@ -19,6 +19,7 @@ ColumnLayout {
         {
             // update model if is_split changed
             transactionsModel.select()
+            console.log("transactionsmodel", transactionsModel.rowCount)
         }
     }
 
@@ -176,7 +177,7 @@ ColumnLayout {
 
             onCreate_transaction: {
                 if (accountId >= 0)
-                    create_new_transaction(accountId, date, payee, memo, amount)
+                    transactionsModel.create_transaction(accountId, date, payee, memo, amount)
             }
         }
     }

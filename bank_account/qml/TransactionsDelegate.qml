@@ -28,7 +28,10 @@ ListViewDelegate {
             height: parent.height
 
             SwipeDelegate.onClicked: {
-                delegate.ListView.view.model.remove(index)
+                if (!delegate.ListView.view.model.remove(index))
+                    swipe.close()
+                else
+                    delegate.ListView.view.model.select()
             }
 
             background: Rectangle {
@@ -79,7 +82,7 @@ ListViewDelegate {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 300
                 height: delegate.height
-                text: payee
+                text: payee != null ? payee : "<invalid>"
                 placeholderText: "payee"
                 color: delegate.textColor
                 font.pointSize: delegate.fontSize
@@ -94,7 +97,7 @@ ListViewDelegate {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 400
                 height: delegate.height
-                text: memo
+                text: memo != null ? memo : "<invalid>"
                 placeholderText: "memo"
                 color: delegate.textColor
                 font.pointSize: delegate.fontSize
@@ -114,13 +117,13 @@ ListViewDelegate {
 
                 isCurrentItem: delegate.ListView.isCurrentItem
                 placeholderText: "<no category>"
-                modelText: category
+                modelText: category != null ? category : "<invalid>"
                 model: categoryModel
                 textRole: "category"
 
                 onUpdateModelText: {
                     category = text
-                    categoryModel.reload()
+                    //categoryModel.reload()
                 }
 
             }
@@ -151,7 +154,7 @@ ListViewDelegate {
 
                 isCurrentItem: delegate.ListView.isCurrentItem
                 placeholderText: "<no status>"
-                modelText: status
+                modelText: status != null ? status : "<invalid>"
                 model: statusModel
                 textRole: "value"
 

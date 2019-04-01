@@ -29,8 +29,6 @@ public slots:
     void mainQmlLoaded(QObject *obj);
     void databaseLoaded(const QString &fileUrl);
 
-    void check_split_id(const int &transactionId);
-
 private:
     QSettings m_settings;
     AccountsController m_accountsController;
