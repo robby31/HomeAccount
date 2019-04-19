@@ -20,17 +20,17 @@ Item {
         function setQuery(type, category) {
             if (type === "Year") {
                 amountModel.query = "SELECT CAST(strftime('%Y', date) AS INT) AS year, sum(amount) AS total FROM transactions"
-                amountModel.orderClause = "WHERE category='%1'".arg(category)
+                amountModel.orderClause = "WHERE is_split=0 and category='%1'".arg(category)
                 amountModel.group = "year";
             }
             else if (type === "Month") {
                 amountModel.query = "SELECT date(strftime('%Y-%m-%d', date), 'start of month') AS month, sum(amount) AS total FROM transactions"
-                amountModel.orderClause = "WHERE category='%1'".arg(category)
+                amountModel.orderClause = "WHERE is_split=0 and category='%1'".arg(category)
                 amountModel.group = "month";
             }
             else {
                 amountModel.query = "SELECT date, amount FROM transactions"
-                amountModel.orderClause = "WHERE category='%1'".arg(category)
+                amountModel.orderClause = "WHERE is_split=0 and category='%1'".arg(category)
                 amountModel.group = ""
             }
 
