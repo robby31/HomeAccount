@@ -9,13 +9,14 @@ class tests_qiffile : public QObject
 {
     Q_OBJECT
 public:
-    explicit tests_qiffile(QObject *parent = 0);
+    explicit tests_qiffile(QObject *parent = Q_NULLPTR);
 
 signals:
 
 public slots:
 
 private Q_SLOTS:
+    void cleanupTestCase();
     void testCase_invalid_file();
     void testCase_commun();
     void testCase_cel();

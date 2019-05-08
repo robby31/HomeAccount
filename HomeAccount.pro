@@ -1,4 +1,6 @@
 TEMPLATE = subdirs
 
 CONFIG += ordered
-SUBDIRS = qif bank_account
+SUBDIRS = qif bank_account \
+    Ofx \
+    common

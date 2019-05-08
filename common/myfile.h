@@ -9,7 +9,7 @@
 class MyFile : public QObject
 {
 public:
-    MyFile(const QString &name, QObject *parent=0);
+    MyFile(const QString &name, QObject *parent = Q_NULLPTR);
 
     void setCodecName(const QString &name);
 

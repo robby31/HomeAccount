@@ -22,7 +22,12 @@ HEADERS += \
 RESOURCES += \
     data.qrc
 
+include (../common/common.pri)
 include (../qif/qif.pri)
+include (../Ofx/ofx.pri)
+
+INCLUDEPATH += $$(MYLIBRARY)/$$QT_VERSION/include/analyzer
+LIBS += -L$$(MYLIBRARY)/$$QT_VERSION -l$$qtLibraryTarget(analyzer)
 
 INCLUDEPATH += $$(MYLIBRARY)/$$QT_VERSION/include/QmlApplication
 LIBS += -L$$(MYLIBRARY)/$$QT_VERSION -l$$qtLibraryTarget(QmlApplication)

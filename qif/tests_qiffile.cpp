@@ -5,6 +5,10 @@ tests_qiffile::tests_qiffile(QObject *parent) : QObject(parent)
 
 }
 
+void tests_qiffile::cleanupTestCase()
+{
+}
+
 void tests_qiffile::testCase_invalid_file()
 {
     QifFile file;

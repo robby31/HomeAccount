@@ -1,17 +1,8 @@
-#include "transaction.h"
+#include "qiftransaction.h"
 
-Transaction::Transaction(QStringList data, QObject *parent) :
-    QObject(parent),
-    m_valid(false),
-    m_date(),
-    m_dateRegExp("^(\\d+)/(\\d+)['/](\\d+)"),
-    m_amount(),
-    m_memo(),
-    m_payee(),
-    m_category(),
-    m_status(),
-    m_number(),
-    m_addressPayee()
+QifTransaction::QifTransaction(QStringList data, QObject *parent) :
+    Transaction(parent),
+    m_dateRegExp(R"(^(\d+)/(\d+)['/](\d+))")
 {
     foreach(QString elt, data)
     {
@@ -23,11 +14,16 @@ Transaction::Transaction(QStringList data, QObject *parent) :
                 QString date = tmp.right(tmp.size()-1);
                 if (m_dateRegExp.indexIn(date) != -1)
                 {
-                    m_date = QDate::fromString(QString("%1/%2/%3").arg(m_dateRegExp.cap(1)).arg(m_dateRegExp.cap(2)).arg(m_dateRegExp.cap(3)), "d/M/yyyy");
-                    if (m_date.isValid())
-                        m_valid = true;
+                    QDate date = QDate::fromString(QString("%1/%2/%3").arg(m_dateRegExp.cap(1), m_dateRegExp.cap(2), m_dateRegExp.cap(3)), "d/M/yyyy");
+                    if (date.isValid())
+                    {
+                        setValid(true);
+                        setDate(date);
+                    }
                     else
-                       qDebug() << "class" << metaObject()->className() << ": INVALID date" << tmp;
+                    {
+                        qDebug() << "class" << metaObject()->className() << ": INVALID date" << tmp;
+                    }
                 }
                 else
                 {
@@ -36,41 +32,41 @@ Transaction::Transaction(QStringList data, QObject *parent) :
             }
             else if (tmp[0] == 'T')
             {
-                m_valid = true;
+                setValid(true);
                 double amount = QVariant::fromValue(tmp.right(tmp.size()-1).replace(',', "")).toDouble();
-                m_amount = QVariant::fromValue(amount).toString();
+                setAmount(QVariant::fromValue(amount).toString());
             }
             else if (tmp[0] == 'M')
             {
-                m_valid = true;
-                m_memo = tmp.right(tmp.size()-1);
+                setValid(true);
+                setMemo(tmp.right(tmp.size()-1));
             }
             else if (tmp[0] == 'P')
             {
-                m_valid = true;
-                m_payee = tmp.right(tmp.size()-1);
+                setValid(true);
+                setPayee(tmp.right(tmp.size()-1));
             }
             else if (tmp[0] == 'L')
             {
-                m_valid = true;
-                m_category = tmp.right(tmp.size()-1);
+                setValid(true);
+                setCategory(tmp.right(tmp.size()-1));
             }
             else if (tmp[0] == 'C')
             {
                 if (tmp == "C*" ||  tmp == "Cc")
                 {
-                    m_valid = true;
-                    m_status = "cleared";
+                    setValid(true);
+                    setStatus("cleared");
                 }
                 else if (tmp == "CX" || tmp == "CR")
                 {
-                    m_valid = true;
-                    m_status = "reconciled";
+                    setValid(true);
+                    setStatus("reconciled");
                 }
                 else if (tmp == "C" || tmp == "C ")
                 {
-                    m_valid = true;
-                    m_status = "not cleared";
+                    setValid(true);
+                    setStatus("not cleared");
                 }
                 else
                 {
@@ -79,13 +75,13 @@ Transaction::Transaction(QStringList data, QObject *parent) :
             }
             else if (tmp[0] == 'N')
             {
-                m_valid = true;
-                m_number = tmp.right(tmp.size()-1);
+                setValid(true);
+                setNumber(tmp.right(tmp.size()-1));
             }
             else if (tmp[0] == 'A')
             {
-                m_valid = true;
-                m_addressPayee = tmp.right(tmp.size()-1);
+                setValid(true);
+                setAddressPayee(tmp.right(tmp.size()-1));
             }
             else
             {
@@ -94,9 +90,3 @@ Transaction::Transaction(QStringList data, QObject *parent) :
         }
     }
 }
-
-Transaction::~Transaction()
-{
-
-}
-

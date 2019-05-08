@@ -182,3 +182,51 @@ void TransactionsModel::check_split_id(const int &transactionId)
         }
     }
 }
+
+void TransactionsModel::importOfx(const int &idAccount, const QString &fileUrl)
+{
+    OfxFile ofx;
+    if (!ofx.read(QUrl::fromUserInput(fileUrl)))
+    {
+        qCritical() << "unable to load" << fileUrl;
+    }
+    else
+    {
+        int transactionsLoaded = 0;
+
+        QSqlQuery query(database());
+
+        query.prepare("INSERT INTO transactions (account_id, date, amount, payee, memo, status, category) "
+                      "VALUES (:account_id, :date, :amount, :payee, :memo, :status, :category)");
+        query.bindValue(":account_id", idAccount);
+
+        for (int index=0; index<ofx.size(); ++index)
+        {
+            Transaction *transaction = ofx.transaction(index);
+
+            if (transaction->isValid())
+            {
+                query.bindValue(":date", transaction->date());
+                query.bindValue(":amount", transaction->amount());
+                query.bindValue(":payee", transaction->payee());
+                query.bindValue(":memo", transaction->memo());
+
+                if (!query.exec())
+                {
+                    qCritical() << "error" << index << query.lastError();
+                }
+                else
+                {
+                    ++transactionsLoaded;
+                }
+            }
+            else
+            {
+                qCritical() << "invalid transaction" << index;
+            }
+        }
+
+        qInfo() << transactionsLoaded << "transactions loaded.";
+        select();
+    }
+}

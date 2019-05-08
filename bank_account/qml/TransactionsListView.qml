@@ -134,6 +134,18 @@ ColumnLayout {
                     }
                 }
             }
+
+            Button {
+                anchors.verticalCenter: parent.verticalCenter
+                height: 30
+                text: "Import OFX"
+                onClicked: {
+                    if (accountId >= 0) {
+                        ofxFileDialog.idAccount = accountId
+                        ofxFileDialog.open()
+                    }
+                }
+            }
         }
 
     }
@@ -182,6 +194,14 @@ ColumnLayout {
         selectExisting: true
         property int idAccount: -1
         onAccepted: transactionsModel.importQif(idAccount, fileUrl)
+    }
+
+    FileDialog {
+        id: ofxFileDialog
+        nameFilters: [ "OFX file (*.ofx)" ]
+        selectExisting: true
+        property int idAccount: -1
+        onAccepted: transactionsModel.importOfx(idAccount, fileUrl)
     }
 }
 

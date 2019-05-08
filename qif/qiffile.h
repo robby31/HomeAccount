@@ -4,10 +4,10 @@
 #include <QObject>
 #include <QUrl>
 #include <QStringList>
-#include "myfile.h"
+#include "../common/myfile.h"
 #include <QTextCodec>
 
-#include "transaction.h"
+#include "qiftransaction.h"
 
 #include <QDebug>
 
@@ -16,10 +16,9 @@ class QifFile : public QObject
     Q_OBJECT
 
 public:
-    explicit QifFile(QObject *parent = 0);
-    ~QifFile();
+    explicit QifFile(QObject *parent = Q_NULLPTR);
 
-    bool read(QUrl filename);
+    bool read(const QUrl &filename);
     void save(QUrl filename);
 
     QString type()  const { return typeQif; }    // Return type of data

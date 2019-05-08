@@ -3,14 +3,14 @@
 
 #include <QObject>
 #include <QtTest>
-#include "transaction.h"
+#include "qiftransaction.h"
 
 class tests_transactions : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit tests_transactions(QObject *parent = 0);
+    explicit tests_transactions(QObject *parent = Q_NULLPTR);
 
 signals:
 

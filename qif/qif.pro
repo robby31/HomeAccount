@@ -14,6 +14,7 @@ SOURCES += main.cpp tests_transactions.cpp \
 HEADERS += tests_transactions.h \
     tests_qiffile.h
 
+include (../common/common.pri)
 include (qif.pri)
 
 
