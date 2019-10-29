@@ -7,6 +7,8 @@ tests_qiffile::tests_qiffile(QObject *parent) : QObject(parent)
 
 void tests_qiffile::cleanupTestCase()
 {
+    DebugInfo::display_alive_objects();
+    QCOMPARE(DebugInfo::count_alive_objects(), 0);
 }
 
 void tests_qiffile::testCase_invalid_file()
@@ -27,10 +29,10 @@ void tests_qiffile::testCase_commun()
 
     QVERIFY2(file.size() == 12, QString("ERROR, invalid transactions size %1").arg(file.size()).toUtf8());
 
-    Transaction *transaction = 0;
+    Transaction *transaction = Q_NULLPTR;
 
     transaction = file.transaction(0);
-    QVERIFY(transaction != 0);
+    QVERIFY(transaction != Q_NULLPTR);
 
     QVERIFY2(transaction->date().toString("dd/MM/yyyy") == "18/09/2012", QString("ERROR, invalid date %1").arg(transaction->date().toString("dd/MM/yyyy")).toUtf8());
     QVERIFY2(transaction->payee() == "16/09/12 10H20 13319000 CE MIDI-", QString("ERROR, invalid payee %1").arg(transaction->payee()).toUtf8());
@@ -38,7 +40,7 @@ void tests_qiffile::testCase_commun()
     QVERIFY2(transaction->amount() == "-60", QString("ERROR, invalid amount %1").arg(transaction->amount()).toUtf8());
 
     transaction = file.transaction(2);
-    QVERIFY(transaction != 0);
+    QVERIFY(transaction != Q_NULLPTR);
 
     QVERIFY2(transaction->date().toString("dd/MM/yyyy") == "17/09/2012", QString("ERROR, invalid date %1").arg(transaction->date().toString("dd/MM/yyyy")).toUtf8());
     QVERIFY2(transaction->payee() == "N° 1305751", QString("ERROR, invalid payee %1").arg(transaction->payee()).toUtf8());
@@ -57,10 +59,10 @@ void tests_qiffile::testCase_cel()
 
     QVERIFY2(file.size() == 151, QString("ERROR, invalid transactions size %1").arg(file.size()).toUtf8());
 
-    Transaction *transaction = 0;
+    Transaction *transaction = Q_NULLPTR;
 
     transaction = file.transaction(3);
-    QVERIFY(transaction != 0);
+    QVERIFY(transaction != Q_NULLPTR);
 
     QVERIFY2(transaction->date().toString("dd/MM/yyyy") == "30/12/2002", QString("ERROR, invalid date %1").arg(transaction->date().toString("dd/MM/yyyy")).toUtf8());
     QVERIFY2(transaction->payee() == "Opening Balance", QString("ERROR, invalid payee %1").arg(transaction->payee()).toUtf8());

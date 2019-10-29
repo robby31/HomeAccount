@@ -6,6 +6,12 @@ tests_transactions::tests_transactions(QObject *parent):
 
 }
 
+void tests_transactions::cleanupTestCase()
+{
+    DebugInfo::display_alive_objects();
+    QCOMPARE(DebugInfo::count_alive_objects(), 0);
+}
+
 void tests_transactions::testCase_Transaction_date()
 {
     {

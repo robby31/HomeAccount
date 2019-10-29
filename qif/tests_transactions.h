@@ -17,6 +17,8 @@ signals:
 public slots:
 
 private Q_SLOTS:
+    void cleanupTestCase();
+
     void testCase_Transaction_date();
     void testCase_Transaction_amount();
     void testCase_Transaction_memo();

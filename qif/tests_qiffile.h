@@ -17,6 +17,7 @@ public slots:
 
 private Q_SLOTS:
     void cleanupTestCase();
+
     void testCase_invalid_file();
     void testCase_commun();
     void testCase_cel();
