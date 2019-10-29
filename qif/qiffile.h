@@ -17,6 +17,7 @@ class QifFile : public QObject
 
 public:
     explicit QifFile(QObject *parent = Q_NULLPTR);
+    ~QifFile() Q_DECL_OVERRIDE;
 
     bool read(const QUrl &filename);
     void save(QUrl filename);

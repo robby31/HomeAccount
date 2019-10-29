@@ -5,7 +5,12 @@ MyFile::MyFile(const QString &name, QObject *parent):
     m_file(name, this),
     m_textstream(&m_file)
 {
+    DebugInfo::add_object(this);
+}
 
+MyFile::~MyFile()
+{
+    DebugInfo::remove_object(this);
 }
 
 void MyFile::setCodecName(const QString &name)

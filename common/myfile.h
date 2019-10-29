@@ -5,11 +5,13 @@
 #include <QTextStream>
 #include <QTextCodec>
 #include <QDebug>
+#include "debuginfo.h"
 
 class MyFile : public QObject
 {
 public:
-    MyFile(const QString &name, QObject *parent = Q_NULLPTR);
+    explicit MyFile(const QString &name, QObject *parent = Q_NULLPTR);
+    ~MyFile() Q_DECL_OVERRIDE;
 
     void setCodecName(const QString &name);
 

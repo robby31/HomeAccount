@@ -6,7 +6,14 @@ QifFile::QifFile(QObject *parent) :
     typeQif(),
     m_codecName()
 {
+    DebugInfo::add_object(this);
     l_type << "Cash" << "Bank" << "CCard" << "Invst" << "Oth A" << "Oth L";
+}
+
+QifFile::~QifFile()
+{
+    DebugInfo::remove_object(this);
+    qDeleteAll(l_transactions);
 }
 
 bool QifFile::read(const QUrl &filename)
@@ -39,7 +46,7 @@ bool QifFile::read(const QUrl &filename)
     // read data
     foreach (QString entry, tmp.readAll().split(separator_entry))
     {
-        QifTransaction *transaction = new QifTransaction(entry.trimmed().split('\n'));
+        QifTransaction *transaction = new QifTransaction(entry.trimmed().split('\n'), this);
         if (transaction->isValid())
             l_transactions.append(transaction);
         else

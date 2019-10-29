@@ -19,6 +19,8 @@ private slots:
 
 void tst_ofx::cleanupTestCase()
 {
+    DebugInfo::display_alive_objects();
+    QCOMPARE(DebugInfo::count_alive_objects(), 0);
 }
 
 void tst_ofx::test_OfxFile()

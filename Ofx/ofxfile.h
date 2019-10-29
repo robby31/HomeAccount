@@ -13,6 +13,7 @@ class OfxFile : public QObject
 
 public:
     explicit OfxFile(QObject *parent = nullptr);
+    ~OfxFile() Q_DECL_OVERRIDE;
 
     bool read(const QUrl &filename);
 

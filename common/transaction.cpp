@@ -3,7 +3,12 @@
 Transaction::Transaction(QObject *parent) :
     QObject(parent)
 {
+    DebugInfo::add_object(this);
+}
 
+Transaction::~Transaction()
+{
+    DebugInfo::remove_object(this);
 }
 
 void Transaction::setValid(const bool &flag)

@@ -7,6 +7,7 @@
 #include <QDate>
 
 #include <QDebug>
+#include "debuginfo.h"
 
 class Transaction : public QObject
 {
@@ -14,6 +15,7 @@ class Transaction : public QObject
 
 public:
     explicit Transaction(QObject *parent = Q_NULLPTR);
+    ~Transaction() Q_DECL_OVERRIDE;
 
     bool isValid()      const { return m_valid; }
     void setValid(const bool &flag);

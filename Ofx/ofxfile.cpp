@@ -2,11 +2,18 @@
 
 OfxFile::OfxFile(QObject *parent) : QObject(parent)
 {
+    DebugInfo::add_object(this);
+
     QStringList tags;
     tags << "ACCTID" << "ACCTTYPE" << "ACCTKEY" << "BALAMT" << "BANKID" << "BRANCHID"
          << "CODE" << "CURDEF" << "DTASOF" << "DTSERVER" << "DTSTART" << "DTEND" << "DTPOSTED" << "FITID" << "LANGUAGE" << "MEMO" << "NAME" << "SEVERITY"
          << "TRNUID" << "TRNTYPE" << "TRNAMT";
     m_doc.setSingletonTag(tags);
+}
+
+OfxFile::~OfxFile()
+{
+    DebugInfo::remove_object(this);
 }
 
 QList<MarkupBlock*> OfxFile::transactions() const
