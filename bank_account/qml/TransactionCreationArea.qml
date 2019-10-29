@@ -1,7 +1,8 @@
-import QtQuick 2.5
-import QtQuick.Controls 1.4
+import QtQuick 2.12
+import QtQuick.Controls 2.5
 
 Item {
+    id: item
     width: 500
     height: 300
 
@@ -14,19 +15,19 @@ Item {
         spacing: 50
         anchors.fill: parent
 
-        Calendar {
+        MyCalendar {
             id: calendar
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 0
             anchors.top: parent.top
             anchors.topMargin: 0
-            weekNumbersVisible: false
-            visible: parent_date.toString() == "Invalid Date"
+
+            parent_date: item.parent_date
         }
 
         Column {
             id: column
-            spacing: 20
+            spacing: 30
 
             Row {
                 id: rowPayee
@@ -41,7 +42,9 @@ Item {
 
                 TextField {
                     id: payee
+                    anchors.verticalCenter: parent.verticalCenter
                     width: 200
+                    height: 30
                     placeholderText: "payee name"
                 }
             }
@@ -59,7 +62,9 @@ Item {
 
                 TextField {
                     id: memo
+                    anchors.verticalCenter: parent.verticalCenter
                     width: 200
+                    height: 30
                     placeholderText: "memo text"
                 }
             }
@@ -77,7 +82,9 @@ Item {
 
                 TextField {
                     id: amount
+                    anchors.verticalCenter: parent.verticalCenter
                     width: 200
+                    height: 30
 
                     validator: DoubleValidator {
                         decimals: 2
