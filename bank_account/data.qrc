@@ -21,5 +21,6 @@
         <file>qml/RevenusDepensesGraph.qml</file>
         <file>qml/AccountsAreaSeries.qml</file>
         <file>qml/AccountsBarSeries.qml</file>
+        <file>qml/MyCalendar.qml</file>
     </qresource>
 </RCC>
