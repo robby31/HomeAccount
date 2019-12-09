@@ -9,7 +9,6 @@ class tst_ofx : public QObject
 
 public:
     tst_ofx() = default;
-    ~tst_ofx() = default;
 
 private slots:
     void cleanupTestCase();
