@@ -3,6 +3,7 @@ QT += qml quick widgets sql webview charts
 TARGET = bank_account
 
 CONFIG += c++14
+CONFIG += sdk_no_version_check
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
@@ -26,11 +27,11 @@ include (../common/common.pri)
 include (../qif/qif.pri)
 include (../Ofx/ofx.pri)
 
-INCLUDEPATH += $$(MYLIBRARY)/$$QT_VERSION/include/analyzer
-LIBS += -L$$(MYLIBRARY)/$$QT_VERSION -l$$qtLibraryTarget(analyzer)
+INCLUDEPATH += $$(MYLIBRARY)/include/analyzer
+LIBS += -L$$(MYLIBRARY)/lib -l$$qtLibraryTarget(analyzer)
 
-INCLUDEPATH += $$(MYLIBRARY)/$$QT_VERSION/include/QmlApplication
-LIBS += -L$$(MYLIBRARY)/$$QT_VERSION -l$$qtLibraryTarget(QmlApplication)
+INCLUDEPATH += $$(MYLIBRARY)/include/QmlApplication
+LIBS += -L$$(MYLIBRARY)/lib -l$$qtLibraryTarget(QmlApplication)
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH += /Users/doudou/workspaceQT/qmlmodulesplugins
@@ -50,5 +51,4 @@ DISTFILES += \
     app.iconset/icon_128x128.png \
     app.iconset/icon_256x256.png \
     app.iconset/icon_512x512.png \
-    app.iconset/icon.png \
-    ModelEditableText.qml
+    app.iconset/icon.png
