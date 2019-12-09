@@ -17,25 +17,20 @@ class QifFile : public QObject
 
 public:
     explicit QifFile(QObject *parent = Q_NULLPTR);
-    ~QifFile() Q_DECL_OVERRIDE;
 
     bool read(const QUrl &filename);
     void save(QUrl filename);
 
-    QString type()  const { return typeQif; }    // Return type of data
-    int size()      const { return l_transactions.size(); }
+    QString type()  const;   // Return type of data
+    int size()      const;
 
     Transaction *transaction(int index);
 
-    void setCodecName(const QString &name) { m_codecName = name; }
-
-signals:
-
-public slots:
+    void setCodecName(const QString &name);
 
 private:
-    char separator_entry;   // character separating two transactions
-    QStringList l_type;     // valid types
+    char separator_entry = '^';   // character separating two transactions
+    QStringList l_type;           // valid types
     QString typeQif;
     QList<Transaction*> l_transactions;
     QString m_codecName;

@@ -1,6 +1,6 @@
 #include "qiftransaction.h"
 
-QifTransaction::QifTransaction(QStringList data, QObject *parent) :
+QifTransaction::QifTransaction(const QStringList &data, QObject *parent) :
     Transaction(parent),
     m_dateRegExp(R"(^(\d+)/(\d+)['/](\d+))")
 {

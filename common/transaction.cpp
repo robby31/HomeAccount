@@ -6,11 +6,6 @@ Transaction::Transaction(QObject *parent) :
     DebugInfo::add_object(this);
 }
 
-Transaction::~Transaction()
-{
-    DebugInfo::remove_object(this);
-}
-
 void Transaction::setValid(const bool &flag)
 {
     m_valid = flag;

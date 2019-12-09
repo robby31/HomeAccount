@@ -7,7 +7,7 @@ class QifTransaction : public Transaction
 {
 
 public:
-    explicit QifTransaction(QStringList data, QObject *parent = Q_NULLPTR);
+    explicit QifTransaction(const QStringList &data, QObject *parent = Q_NULLPTR);
 
 private:
     QRegExp m_dateRegExp;

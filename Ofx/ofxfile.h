@@ -12,8 +12,7 @@ class OfxFile : public QObject
     Q_OBJECT
 
 public:
-    explicit OfxFile(QObject *parent = nullptr);
-    ~OfxFile() Q_DECL_OVERRIDE;
+    explicit OfxFile(QObject *parent = Q_NULLPTR);
 
     bool read(const QUrl &filename);
 
@@ -25,10 +24,6 @@ private:
     QList<MarkupBlock*> transactions() const;
 
     QVariant transactionAttribute(MarkupBlock *transaction, const QString &param);
-
-signals:
-
-public slots:
 
 private:
     QStringList m_header;

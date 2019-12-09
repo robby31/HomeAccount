@@ -20,6 +20,6 @@ int main(int argc, char *argv[])
     // load the qml file describing the application
     c_application.loadMainQml(QUrl("qrc:/qml/main.qml"));
 
-    return c_application.exec();
+    return MyApplication::exec();
 }
 

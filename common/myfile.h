@@ -9,9 +9,10 @@
 
 class MyFile : public QObject
 {
+    Q_OBJECT
+
 public:
     explicit MyFile(const QString &name, QObject *parent = Q_NULLPTR);
-    ~MyFile() Q_DECL_OVERRIDE;
 
     void setCodecName(const QString &name);
 

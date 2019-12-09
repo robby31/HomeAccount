@@ -8,11 +8,6 @@ MyFile::MyFile(const QString &name, QObject *parent):
     DebugInfo::add_object(this);
 }
 
-MyFile::~MyFile()
-{
-    DebugInfo::remove_object(this);
-}
-
 void MyFile::setCodecName(const QString &name)
 {
     if (!name.isEmpty())

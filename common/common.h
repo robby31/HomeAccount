@@ -6,7 +6,7 @@ class COMMONSHARED_EXPORT Common
 {
 
 public:
-    Common();
+    Common() = default;
 };
 
 #endif // COMMON_H

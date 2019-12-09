@@ -1,19 +1,10 @@
 #include "qiffile.h"
 
 QifFile::QifFile(QObject *parent) :
-    QObject(parent),
-    separator_entry('^'),
-    typeQif(),
-    m_codecName()
+    QObject(parent)
 {
     DebugInfo::add_object(this);
     l_type << "Cash" << "Bank" << "CCard" << "Invst" << "Oth A" << "Oth L";
-}
-
-QifFile::~QifFile()
-{
-    DebugInfo::remove_object(this);
-    qDeleteAll(l_transactions);
 }
 
 bool QifFile::read(const QUrl &filename)
@@ -66,3 +57,17 @@ Transaction *QifFile::transaction(int index)
     return Q_NULLPTR;
 }
 
+QString QifFile::type() const
+{
+    return typeQif;
+}
+
+int QifFile::size() const
+{
+    return l_transactions.size();
+}
+
+void QifFile::setCodecName(const QString &name)
+{
+    m_codecName = name;
+}

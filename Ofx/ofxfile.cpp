@@ -1,6 +1,7 @@
 #include "ofxfile.h"
 
-OfxFile::OfxFile(QObject *parent) : QObject(parent)
+OfxFile::OfxFile(QObject *parent):
+    QObject(parent)
 {
     DebugInfo::add_object(this);
 
@@ -9,11 +10,6 @@ OfxFile::OfxFile(QObject *parent) : QObject(parent)
          << "CODE" << "CURDEF" << "DTASOF" << "DTSERVER" << "DTSTART" << "DTEND" << "DTPOSTED" << "FITID" << "LANGUAGE" << "MEMO" << "NAME" << "SEVERITY"
          << "TRNUID" << "TRNTYPE" << "TRNAMT";
     m_doc.setSingletonTag(tags);
-}
-
-OfxFile::~OfxFile()
-{
-    DebugInfo::remove_object(this);
 }
 
 QList<MarkupBlock*> OfxFile::transactions() const
