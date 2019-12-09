@@ -7,6 +7,7 @@ Item {
     width: calendar.width
     height: calendar.height
 
+    property alias selectedDate: calendar.selectedDate
     property date parent_date
 
     Calendar {
