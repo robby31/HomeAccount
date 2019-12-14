@@ -46,11 +46,15 @@ ColumnLayout {
     {
         if (listview.model)
         {
+            var splitCmd = "split_id=0"
+            if (splitButton.checked)
+                splitCmd = "is_split=0"
+
             if (accountId >= 0) {
                 if (textFilter.text)
                 {
                     listview.model.query = "select * from transactions"
-                    listview.model.filter = "account_id=%1 and split_id=0 and %2".arg(accountId).arg(textFilter.text)
+                    listview.model.filter = "account_id=%1 and %3 and %2".arg(accountId).arg(textFilter.text).arg(splitCmd)
                     listview.model.select()
 
                     balanceModel.query = "SELECT sum(amount) AS total from (%1)".arg(listview.model.query)
@@ -58,7 +62,7 @@ ColumnLayout {
                 else
                 {
                     listview.model.query = "select *, (SELECT SUM(balanceTable.amount) from transactions balanceTable WHERE balanceTable.account_id=%1 and balanceTable.split_id=0 and balanceTable.date<=transactions.date) AS balance from transactions".arg(accountId)
-                    listview.model.filter = "account_id=%1 and split_id=0".arg(accountId)
+                    listview.model.filter = "account_id=%1 and %2".arg(accountId).arg(splitCmd)
                     listview.model.select()
 
                     balanceModel.query = "SELECT sum(amount) AS total from transactions WHERE account_id=%1 and split_id=0".arg(accountId)
@@ -97,6 +101,12 @@ ColumnLayout {
                 color: parent.focus ? "white" : "transparent"
                 border.color: parent.focus ? "#21be2b" : "grey"
             }
+        }
+
+        CheckBox {
+            id: splitButton
+            text: 'leaves?'
+            onCheckedChanged: updateTransactionsQuery()
         }
 
         Row {
